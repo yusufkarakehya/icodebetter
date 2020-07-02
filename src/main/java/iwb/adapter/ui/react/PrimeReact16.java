@@ -1216,7 +1216,7 @@ public class PrimeReact16 implements ViewAdapter {
 							else {
 								if(firstTab==0){
 									firstTab = m.getFormModuleId();
-									buf.append(",_(Row,null,_(Col,{ className: 'mb-3 mt-4' }, _(Nav,{tabs: true}");
+									buf.append(",_('div',{className:'p-grid'},_(Col,{ className: 'mb-3 mt-4' }, _(Nav,{tabs: true}");
 									contentBuf.append(", _(TabContent,{ className:'form-tabcontent', activeTab: this.state.activeTab||'").append(firstTab).append("' }");
 								}
 								buf.append(",_(NavItem, null,_(NavLinkS,{className: classNames({active: ").append(firstTab==m.getFormModuleId()?"!this.state.activeTab || ":"").append("this.state.activeTab === '").append(m.getFormModuleId()).append("'}), onClick:()=> this.toggleTab('").append(m.getFormModuleId()).append("')},'").append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey())).append("'))");
@@ -1230,7 +1230,7 @@ public class PrimeReact16 implements ViewAdapter {
 							if (!map.get(m.getFormModuleId()).isEmpty()) {
 								if(firstTab==0){
 									firstTab = m.getFormModuleId();
-									buf.append(",_(Row,null,_(Col,{ className: 'mb-3 mt-4' }, _(Nav,{tabs: true}");
+									buf.append(",_('div',{className:'p-grid'},_(Col,{ className: 'mb-3 mt-4' }, _(Nav,{tabs: true}");
 									contentBuf.append(", _(TabContent,{ className:'form-tabcontent', activeTab: this.state.activeTab||'").append(firstTab).append("' }");
 								}
 								buf.append(",_(NavItem, null,_(NavLinkS,{className: classNames({active: ").append(firstTab==m.getFormModuleId()?"!this.state.activeTab || ":"").append("this.state.activeTab === '").append(m.getFormModuleId()).append("'}), onClick:()=> this.toggleTab('").append(m.getFormModuleId()).append("')},'").append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey())).append("'))");
@@ -1639,35 +1639,20 @@ public class PrimeReact16 implements ViewAdapter {
 		// if(xtype!=null)buf.append("{frame:true,xtype:'").append(xtype).append("'");
 		if(xtype!=null)buf.append(xtype);
 		int lc = 0;
-		int[] maxWidths = new int[10], minWidths = new int[10];
 		for (W5FormCellHelper fc : formCells)
 			if (fc.getFormCell().getActiveFlag() != 0){
 				lc = Math.max(lc, fc.getFormCell().getTabOrder() / 1000);
-				if(lc<3){
-					maxWidths[lc] = Math.max(maxWidths[lc], fc.getFormCell().getControlWidth());
-					minWidths[lc] = Math.min(minWidths[lc], fc.getFormCell().getControlWidth());
-				}
 			}
 		if(lc>2)lc=2;
 
-		int totalControlWidth = 0;
-		for(int qi=0;qi<=lc;qi++){
-			if(minWidths[lc]<0) maxWidths[qi] =Math.max(-(350*minWidths[lc])/100,maxWidths[qi]);
-			maxWidths[qi]+=25;
-			totalControlWidth+=maxWidths[qi]; //padding yuzunden 25 pixel de yeniyo
-		}
-		if(defaultWidth>0){
-			if(totalControlWidth>defaultWidth) defaultWidth = totalControlWidth;
-			defaultWidth = 6 * defaultWidth / 5; //extjs -> bootstrap rate
-		} //else totalControlWidth = 6 * totalControlWidth / 5;
+
 		boolean modal = defaultWidth==-1;
+		int lg = modal?12:Math.min(12, (defaultWidth/100));// Large >=992px
 		
 		if (lc == 0) {// hersey duz
-			int xl = modal?12:Math.min(12, (12*defaultWidth)/1140);// extraLarge >=1200px
-			int lg = modal?12:Math.min(12, (12*defaultWidth)/960);// Large >=992px
-			int md = modal?12:Math.min(12, (12*defaultWidth)/720);// Medium >=768px
-			int sm = modal?12:Math.min(12, (12*defaultWidth)/540);// Small >=576px
-			buf.append("_(Row, null, _(Col,{xs:'12',xl:'").append(xl).append("',lg:'").append(lg).append("',md:'").append(md).append("',sm:'").append(sm).append("'}");
+
+
+			buf.append("_('div',{className:'p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			for (int i = 0; i < formCells.size(); i++) {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlType()==0)
@@ -1676,25 +1661,14 @@ public class PrimeReact16 implements ViewAdapter {
 				
 				if (i < formCells.size() - 1 && formCells.get(i + 1).getFormCell().getControlType() != 0 && formCells.get(i + 1).getFormCell().getActiveFlag() != 0
 						&& formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) { // yanyana koymak icin. 
-					buf.append(", _(Row,null");
+					buf.append(", _('div',{className:'p-grid'}");
 					
-					int columnWidthTotal = fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300;
-					for(int ji=i;ji < formCells.size() - 1 && formCells.get(ji + 1).getFormCell().getControlType() != 0 && formCells.get(ji + 1).getFormCell().getActiveFlag() != 0 && formCells.get(ji + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder();ji++){
-						columnWidthTotal += formCells.get(ji+1).getFormCell().getControlWidth()>0 ? formCells.get(ji+1).getFormCell().getControlWidth():300;
-					}
-					
-					int totalColXs = 0;
-					int xs = 12*(fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300)/columnWidthTotal;
-					if(xs==0)xs=1;
-					totalColXs+=xs;
-					buf.append(",_(Col,{xs:12, md:").append(xs).append("}").append(renderFormCellWithLabelTop(fc)).append(")");
+
+					buf.append(",_('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")");
 					while (i < formCells.size() - 1 && formCells.get(i + 1).getFormCell().getControlType() != 0 && formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) {
 						i++;
 						fc = formCells.get(i);
-						xs = 12*(fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300)/columnWidthTotal;
-						if(xs==0)xs=1;
-						totalColXs+=xs;
-						buf.append(",_(Col,{xs:12, md:").append(xs).append("}").append(renderFormCellWithLabelTop(fc)).append(")");
+						buf.append(",_('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")");
 					}
 					buf.append(")");
 				} else {
@@ -1703,15 +1677,7 @@ public class PrimeReact16 implements ViewAdapter {
 			}
 			buf.append("))");
 		} else {
-			for(int qi=0;qi<=lc;qi++){
-				maxWidths[qi]=6*maxWidths[qi]/5;
-			}
-			int xl = Math.min(12, (12*maxWidths[0])/(modal?totalControlWidth:1140));// extraLarge >=1200px
-			int lg = modal ? xl :Math.min(12, (12*maxWidths[0])/960);// Large >=992px
-			int md = modal ? xl :Math.min(12, (12*maxWidths[0])/720);// Medium >=768px
-			int sm = modal ? xl: Math.min(12, (12*maxWidths[0])/540);// Small >=576px
-
-			buf.append("_(Row, null, _(Col,{xs:'12',xl:'").append(xl).append("',lg:'").append(lg).append("',md:'").append(md).append("',sm:'").append(sm).append("'}");
+			buf.append("_('div',{className:'p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			StringBuilder columnBuf = new StringBuilder();
 			int order=0;
 			for (int i = 0; i < formCells.size(); i++) {
@@ -1720,44 +1686,22 @@ public class PrimeReact16 implements ViewAdapter {
 					continue;
 				if (fc.getFormCell().getTabOrder() / 1000 != order) {
 					order = fc.getFormCell().getTabOrder() / 1000;
-					int nxl = Math.min(12, (12*maxWidths[order])/(modal?totalControlWidth:1140));// extraLarge >=1200px
-					int nlg = modal ? xl :Math.min(12, (12*maxWidths[order])/960);// Large >=992px
-					int nmd = modal ? xl :Math.min(12, (12*maxWidths[order])/720);// Medium >=768px
-					int nsm = modal ? xl :Math.min(12, (12*maxWidths[order])/320);// Small >=576px
-					if(modal){
-						xl+=nxl;
-						if(xl==13){
-							nxl--;
-							nlg = nmd = nsm = nxl;
-						}
-					}
+
 					
 					if (columnBuf.length() > 0) {
-						buf.append(columnBuf.append("), _(Col,{xs:12,xl:'").append(nxl).append("',lg:'").append(nlg).append("',md:'").append(nmd).append("',sm:'").append(nsm).append("'}"));
+						buf.append(columnBuf.append("), _('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}"));
 						columnBuf.setLength(0);
 					}
 				}
 				if (i < formCells.size() - 1 && formCells.get(i + 1).getFormCell().getControlType() != 0 && formCells.get(i + 1).getFormCell().getActiveFlag() != 0
 						&& formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) { // yanyana koymak icin. 
-					columnBuf.append(", _(Row,null");
+					columnBuf.append(", _('div',{className:'p-grid'}");
 					
-					int columnWidthTotal = fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300;
-					for(int ji=i;ji < formCells.size() - 1 && formCells.get(ji + 1).getFormCell().getControlType() != 0 && formCells.get(ji + 1).getFormCell().getActiveFlag() != 0 && formCells.get(ji + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder();ji++){
-						columnWidthTotal += formCells.get(ji+1).getFormCell().getControlWidth()>0 ? formCells.get(ji+1).getFormCell().getControlWidth():300;
-					}
-					
-					int totalColXs = 0;
-					int xs = 12*(fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300)/columnWidthTotal;
-					if(xs==0)xs=1;
-					totalColXs+=xs;
-					columnBuf.append(",_(Col,{xs:12,md:").append(xs).append("}").append(renderFormCellWithLabelTop(fc)).append(")"); //").append(fc.getFormCell().getControlWidth()>200 ? 12:xs).append("
+					columnBuf.append(",_('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")"); //").append(fc.getFormCell().getControlWidth()>200 ? 12:xs).append("
 					while (i < formCells.size() - 1 && formCells.get(i + 1).getFormCell().getControlType() != 0 && formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) {
 						i++;
 						fc = formCells.get(i);
-						xs = 12*(fc.getFormCell().getControlWidth()>0 ? fc.getFormCell().getControlWidth():300)/columnWidthTotal;
-						if(xs==0)xs=1;
-						totalColXs+=xs;
-						columnBuf.append(",_(Col,{xs:12,md:").append(xs).append("}").append(renderFormCellWithLabelTop(fc)).append(")");
+						columnBuf.append(",_('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")");
 					}
 					columnBuf.append(")");
 				} else {
@@ -4342,13 +4286,34 @@ columns:[
 			
 			if(page.getCode().contains("${components}")) {
 				StringBuilder bufc = new StringBuilder();
+				boolean bx = false;
 
 				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
 					W5Component c = (W5Component)i;
-					bufc.append("<script src=\"comp/").append(c.getComponentId()).append(".js?.x=\"></script>;\n");
-					if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=\"/>;\n");
+					if(bx)bufc.append(",").append(c.getComponentId());
+					else {
+						bx = true;
+						bufc.append("<script src=\"comp/").append(c.getComponentId());
+					}
+					//if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=").append(c.getDsc()).append("\"/>\n");
 					
 				}
+				if(bx)bufc.append(".js?.x=123\"></script>\n");
+				
+				bx = false;
+
+				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
+					W5Component c = (W5Component)i;
+					if(GenericUtil.isEmpty(c.getCssCode()))continue;
+					if(bx)bufc.append(",").append(c.getComponentId());
+					else {
+						bx = true;
+						bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId());
+					}
+					
+					
+				}
+				if(bx)bufc.append(".css?.x=123").append("\"/>\n");
 				code = code.replace("${components}", bufc.toString());
 			}
 			

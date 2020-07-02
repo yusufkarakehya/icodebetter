@@ -60,6 +60,7 @@ import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
+import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
@@ -944,17 +945,56 @@ public class PreviewController implements InitializingBean {
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
 		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
-		// if(pageResult.getTemplate().getTemplateTip()!=2 && pageId!=218 &&
-		// pageId!=611 && pageId!=551 && pageId!=566){ //TODO:cok
-		// amele
-		// throw new PromisException("security","Template",0,null, "Wrong
-		// Template Tip (must be page)", null);
-		// }
+
 
 		if(pageResult.getPage().getPageType()!=0)
 			response.setContentType("application/javascript");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
+		response.getWriter().close();
+
+	}
+
+	
+	
+	@RequestMapping("/*/pages/*")
+	public void hndShowPage2(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String[] uuri = request.getRequestURI().split("/");
+		int pageId = GenericUtil.uInt(uuri[uuri.length-1]);
+		logger.info("hndShowPage2(" + pageId + ")");
+
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+
+		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
+
+
+		if(pageResult.getPage().getPageType()!=0)
+			response.setContentType("application/javascript");
+
+		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
+		response.getWriter().close();
+
+	}
+
+	
+	
+	@RequestMapping("/*/grids/*")
+	public void hndShowGrid2(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String[] uuri = request.getRequestURI().split("/");
+		int gridId = GenericUtil.uInt(uuri[uuri.length-1]);
+		logger.info("hndShowGrid2(" + gridId + ")");
+
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+
+		W5GridResult gridResult = service.getGridResult(scd, gridId);
+
+
+		response.setContentType("application/javascript");
+
+		response.getWriter().write(getViewAdapter(scd, request).serializeGrid(gridResult).toString());
+		response.getWriter().write("\nreturn "+gridResult.getGrid().getDsc());
 		response.getWriter().close();
 
 	}
@@ -1625,20 +1665,37 @@ public class PreviewController implements InitializingBean {
     	if(uri.endsWith(".css")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
     		uri = uri.substring(0, uri.length()-4);
-        	String css = FrameworkCache.getComponentCss(scd, GenericUtil.uInt(uri));
+    		String[] ids = uri.split(",");
+    		StringBuilder totalCss = new StringBuilder();
+    		for(String id:ids) {
+    			int i = GenericUtil.uInt(id);
+    			if(i!=0) {
+    				String js = FrameworkCache.getComponentCss(scd, i);	
+    				if(js!=null)totalCss.append("\n").append(js);
+    			}
+    		}
+    		
     		response.setContentType("text/css; charset=UTF-8");
-        	if(css!=null){
-        		response.getWriter().write(css);
+    		if(totalCss.length()>0){
+        		response.getWriter().write(totalCss.toString());
         	} else {
         		
         	}
     	} else if(uri.endsWith(".js")){
     		uri = uri.substring(uri.lastIndexOf('/')+1);
     		uri = uri.substring(0, uri.length()-3);
-        	String js = FrameworkCache.getComponentJs(scd, GenericUtil.uInt(uri));
+    		String[] ids = uri.split(",");
+    		StringBuilder totalJs = new StringBuilder();
+    		for(String id:ids) {
+    			int i = GenericUtil.uInt(id);
+    			if(i!=0) {
+    				String js = FrameworkCache.getComponentJs(scd, i);	
+    				if(js!=null)totalJs.append("\n").append(js);
+    			}
+    		}
     		response.setContentType("text/javascript; charset=UTF-8");
-        	if(js!=null){
-        		response.getWriter().write(js);
+        	if(totalJs.length()>0){
+        		response.getWriter().write(totalJs.toString());
         	} else {
         		
         	}

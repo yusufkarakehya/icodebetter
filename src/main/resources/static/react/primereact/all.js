@@ -1157,7 +1157,7 @@ class Button extends React.Component {
         'p-button-icon-left': this.props.iconPos !== 'right',
         'p-button-icon-right': this.props.iconPos === 'right'
       });
-      return /*#__PURE__*/React.createElement("span", {
+      return _("span", {
         className: className
       });
     } else {
@@ -1167,7 +1167,7 @@ class Button extends React.Component {
 
   renderLabel() {
     const buttonLabel = this.props.label || 'p-btn';
-    return /*#__PURE__*/React.createElement("span", {
+    return _("span", {
       className: "p-button-text p-c"
     }, buttonLabel);
   }
@@ -1183,7 +1183,7 @@ class Button extends React.Component {
     let icon = this.renderIcon();
     let label = this.renderLabel();
     let buttonProps = ObjectUtils.findDiffKeys(this.props, Button.defaultProps);
-    return /*#__PURE__*/React.createElement("button", Object.assign({
+    return _("button", Object.assign({
       ref: el => this.element = el
     }, buttonProps, {
       className: className
@@ -3409,23 +3409,23 @@ class Calendar extends React.Component {
   }
 
   renderBackwardNavigator() {
-    return /*#__PURE__*/React.createElement("button", {
+    return _("button", {
       type: "button",
       className: "p-datepicker-prev p-link",
       onClick: this.onPrevButtonClick,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "p-datepicker-prev-icon pi pi-chevron-left"
     }));
   }
 
   renderForwardNavigator() {
-    return /*#__PURE__*/React.createElement("button", {
+    return _("button", {
       type: "button",
       className: "p-datepicker-next p-link",
       onClick: this.onNextButtonClick,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "p-datepicker-next-icon pi pi-chevron-right"
     }));
   }
@@ -3442,13 +3442,13 @@ class Calendar extends React.Component {
     if (this.props.monthNavigator && this.props.view !== 'month') {
       let viewDate = this.getViewDate();
       let viewMonth = viewDate.getMonth();
-      return /*#__PURE__*/React.createElement("select", {
+      return _("select", {
         className: "p-datepicker-month",
         onChange: this.onMonthDropdownChange,
         value: viewMonth
       }, this.props.locale.monthNames.map((month, index) => {
         if ((!this.isInMinYear(viewDate) || index >= this.props.minDate.getMonth()) && (!this.isInMaxYear(viewDate) || index <= this.props.maxDate.getMonth())) {
-          return /*#__PURE__*/React.createElement("option", {
+          return _("option", {
             key: month,
             value: index
           }, month);
@@ -3457,7 +3457,7 @@ class Calendar extends React.Component {
         return null;
       }));
     } else {
-      return /*#__PURE__*/React.createElement("span", {
+      return _("span", {
         className: "p-datepicker-month"
       }, this.props.locale.monthNames[month]);
     }
@@ -3476,13 +3476,13 @@ class Calendar extends React.Component {
 
       let viewDate = this.getViewDate();
       let viewYear = viewDate.getFullYear();
-      return /*#__PURE__*/React.createElement("select", {
+      return _("select", {
         className: "p-datepicker-year",
         onChange: this.onYearDropdownChange,
         value: viewYear
       }, yearOptions.map(year => {
         if (!(this.props.minDate && this.props.minDate.getFullYear() > year) && !(this.props.maxDate && this.props.maxDate.getFullYear() < year)) {
-          return /*#__PURE__*/React.createElement("option", {
+          return _("option", {
             key: year,
             value: year
           }, year);
@@ -3491,7 +3491,7 @@ class Calendar extends React.Component {
         return null;
       }));
     } else {
-      return /*#__PURE__*/React.createElement("span", {
+      return _("span", {
         className: "p-datepicker-year"
       }, year);
     }
@@ -3500,23 +3500,23 @@ class Calendar extends React.Component {
   renderTitle(monthMetaData) {
     const month = this.renderTitleMonthElement(monthMetaData.month);
     const year = this.renderTitleYearElement(monthMetaData.year);
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-datepicker-title"
     }, month, year);
   }
 
   renderDayNames(weekDays) {
-    const dayNames = weekDays.map(weekDay => /*#__PURE__*/React.createElement("th", {
+    const dayNames = weekDays.map(weekDay => _("th", {
       key: weekDay,
       scope: "col"
-    }, /*#__PURE__*/React.createElement("span", null, weekDay)));
+    }, _("span", null, weekDay)));
 
     if (this.props.showWeek) {
-      const weekHeader = /*#__PURE__*/React.createElement("th", {
+      const weekHeader = _("th", {
         scope: "col",
         key: 'wn',
         className: "p-datepicker-weekheader p-disabled"
-      }, /*#__PURE__*/React.createElement("span", null, this.props.locale['weekHeader']));
+      }, _("span", null, this.props.locale['weekHeader']));
       return [weekHeader, ...dayNames];
     } else {
       return dayNames;
@@ -3525,7 +3525,7 @@ class Calendar extends React.Component {
 
   renderDateCellContent(date, className, groupIndex) {
     const content = this.props.dateTemplate ? this.props.dateTemplate(date) : date.day;
-    return /*#__PURE__*/React.createElement("span", {
+    return _("span", {
       className: className,
       onClick: e => this.onDateSelect(e, date),
       onKeyDown: e => this.onDateCellKeydown(e, date, groupIndex)
@@ -3544,17 +3544,17 @@ class Calendar extends React.Component {
         'p-disabled': !date.selectable
       });
       const content = date.otherMonth && !this.props.showOtherMonths ? null : this.renderDateCellContent(date, dateClassName, groupIndex);
-      return /*#__PURE__*/React.createElement("td", {
+      return _("td", {
         key: date.day,
         className: cellClassName
       }, content);
     });
 
     if (this.props.showWeek) {
-      const weekNumberCell = /*#__PURE__*/React.createElement("td", {
+      const weekNumberCell = _("td", {
         key: 'wn' + weekNumber,
         className: "p-datepicker-weeknumber"
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "p-disabled"
       }, weekNumber));
       return [weekNumberCell, ...week];
@@ -3565,7 +3565,7 @@ class Calendar extends React.Component {
 
   renderDates(monthMetaData, groupIndex) {
     return monthMetaData.dates.map((weekDates, index) => {
-      return /*#__PURE__*/React.createElement("tr", {
+      return _("tr", {
         key: index
       }, this.renderWeek(weekDates, monthMetaData.weekNumbers[index], groupIndex));
     });
@@ -3574,11 +3574,11 @@ class Calendar extends React.Component {
   renderDateViewGrid(monthMetaData, weekDays, groupIndex) {
     const dayNames = this.renderDayNames(weekDays);
     const dates = this.renderDates(monthMetaData, groupIndex);
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-datepicker-calendar-container"
-    }, /*#__PURE__*/React.createElement("table", {
+    }, _("table", {
       className: "p-datepicker-calendar"
-    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, dayNames)), /*#__PURE__*/React.createElement("tbody", null, dates)));
+    }, _("thead", null, _("tr", null, dayNames)), _("tbody", null, dates)));
   }
 
   renderMonth(monthMetaData, index) {
@@ -3588,10 +3588,10 @@ class Calendar extends React.Component {
     const title = this.renderTitle(monthMetaData);
     const dateViewGrid = this.renderDateViewGrid(monthMetaData, weekDays, index);
     const header = this.props.headerTemplate ? this.props.headerTemplate() : null;
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       key: monthMetaData.month,
       className: "p-datepicker-group"
-    }, /*#__PURE__*/React.createElement("div", {
+    }, _("div", {
       className: "p-datepicker-header"
     }, header, backwardNavigator, forwardNavigator, title), dateViewGrid);
   }
@@ -3606,7 +3606,7 @@ class Calendar extends React.Component {
     let viewDate = this.getViewDate();
     const monthsMetaData = this.createMonths(viewDate.getMonth(), viewDate.getFullYear());
     const months = this.renderMonths(monthsMetaData);
-    return /*#__PURE__*/React.createElement(React.Fragment, null, months);
+    return _(React.Fragment, null, months);
   }
 
   renderMonthViewMonth(index) {
@@ -3614,7 +3614,7 @@ class Calendar extends React.Component {
       'p-highlight': this.isMonthSelected(index)
     });
     const monthName = this.props.locale.monthNamesShort[index];
-    return /*#__PURE__*/React.createElement("span", {
+    return _("span", {
       key: monthName,
       className: className,
       onClick: event => this.onMonthSelect(event, index),
@@ -3637,11 +3637,11 @@ class Calendar extends React.Component {
     const forwardNavigator = this.renderForwardNavigator();
     const yearElement = this.renderTitleYearElement(this.getViewDate().getFullYear());
     const months = this.renderMonthViewMonths();
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    return _(React.Fragment, null, _("div", {
       className: "p-datepicker-header"
-    }, backwardNavigator, forwardNavigator, /*#__PURE__*/React.createElement("div", {
+    }, backwardNavigator, forwardNavigator, _("div", {
       className: "p-datepicker-title"
-    }, yearElement)), /*#__PURE__*/React.createElement("div", {
+    }, yearElement)), _("div", {
       className: "p-monthpicker"
     }, months));
   }
@@ -3667,25 +3667,25 @@ class Calendar extends React.Component {
     }
 
     const hourDisplay = hour < 10 ? '0' + hour : hour;
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-hour-picker"
-    }, /*#__PURE__*/React.createElement("button", {
+    }, _("button", {
       type: "button",
       className: "p-link",
       onMouseDown: e => this.onTimePickerElementMouseDown(e, 0, 1),
       onMouseUp: this.onTimePickerElementMouseUp,
       onMouseLeave: this.onTimePickerElementMouseLeave,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-up"
-    })), /*#__PURE__*/React.createElement("span", null, hourDisplay), /*#__PURE__*/React.createElement("button", {
+    })), _("span", null, hourDisplay), _("button", {
       type: "button",
       className: "p-link",
       onMouseDown: e => this.onTimePickerElementMouseDown(e, 0, -1),
       onMouseUp: this.onTimePickerElementMouseUp,
       onMouseLeave: this.onTimePickerElementMouseLeave,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-down"
     })));
   }
@@ -3694,25 +3694,25 @@ class Calendar extends React.Component {
     let currentTime = this.props.value && this.props.value instanceof Date ? this.props.value : this.getViewDate();
     let minute = currentTime.getMinutes();
     let minuteDisplay = minute < 10 ? '0' + minute : minute;
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-minute-picker"
-    }, /*#__PURE__*/React.createElement("button", {
+    }, _("button", {
       type: "button",
       className: "p-link",
       onMouseDown: e => this.onTimePickerElementMouseDown(e, 1, 1),
       onMouseUp: this.onTimePickerElementMouseUp,
       onMouseLeave: this.onTimePickerElementMouseLeave,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-up"
-    })), /*#__PURE__*/React.createElement("span", null, minuteDisplay), /*#__PURE__*/React.createElement("button", {
+    })), _("span", null, minuteDisplay), _("button", {
       type: "button",
       className: "p-link",
       onMouseDown: e => this.onTimePickerElementMouseDown(e, 1, -1),
       onMouseUp: this.onTimePickerElementMouseUp,
       onMouseLeave: this.onTimePickerElementMouseLeave,
       onKeyDown: e => this.onContainerButtonKeydown(e)
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-down"
     })));
   }
@@ -3722,25 +3722,25 @@ class Calendar extends React.Component {
       let currentTime = this.props.value && this.props.value instanceof Date ? this.props.value : this.getViewDate();
       let second = currentTime.getSeconds();
       let secondDisplay = second < 10 ? '0' + second : second;
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-second-picker"
-      }, /*#__PURE__*/React.createElement("button", {
+      }, _("button", {
         type: "button",
         className: "p-link",
         onMouseDown: e => this.onTimePickerElementMouseDown(e, 2, 1),
         onMouseUp: this.onTimePickerElementMouseUp,
         onMouseLeave: this.onTimePickerElementMouseLeave,
         onKeyDown: e => this.onContainerButtonKeydown(e)
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-up"
-      })), /*#__PURE__*/React.createElement("span", null, secondDisplay), /*#__PURE__*/React.createElement("button", {
+      })), _("span", null, secondDisplay), _("button", {
         type: "button",
         className: "p-link",
         onMouseDown: e => this.onTimePickerElementMouseDown(e, 2, -1),
         onMouseUp: this.onTimePickerElementMouseUp,
         onMouseLeave: this.onTimePickerElementMouseLeave,
         onKeyDown: e => this.onContainerButtonKeydown(e)
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-down"
       })));
     }
@@ -3753,25 +3753,25 @@ class Calendar extends React.Component {
       let currentTime = this.props.value && this.props.value instanceof Date ? this.props.value : this.getViewDate();
       let millisecond = currentTime.getMilliseconds();
       let millisecondDisplay = millisecond < 100 ? (millisecond < 10 ? '00' : '0') + millisecond : millisecond;
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-millisecond-picker"
-      }, /*#__PURE__*/React.createElement("button", {
+      }, _("button", {
         type: "button",
         className: "p-link",
         onMouseDown: e => this.onTimePickerElementMouseDown(e, 3, 1),
         onMouseUp: this.onTimePickerElementMouseUp,
         onMouseLeave: this.onTimePickerElementMouseLeave,
         onKeyDown: e => this.onContainerButtonKeydown(e)
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-up"
-      })), /*#__PURE__*/React.createElement("span", null, millisecondDisplay), /*#__PURE__*/React.createElement("button", {
+      })), _("span", null, millisecondDisplay), _("button", {
         type: "button",
         className: "p-link",
         onMouseDown: e => this.onTimePickerElementMouseDown(e, 3, -1),
         onMouseUp: this.onTimePickerElementMouseUp,
         onMouseLeave: this.onTimePickerElementMouseLeave,
         onKeyDown: e => this.onContainerButtonKeydown(e)
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-down"
       })));
     }
@@ -3784,19 +3784,19 @@ class Calendar extends React.Component {
       let currentTime = this.props.value && this.props.value instanceof Date ? this.props.value : this.getViewDate();
       let hour = currentTime.getHours();
       let display = hour > 11 ? 'PM' : 'AM';
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-ampm-picker"
-      }, /*#__PURE__*/React.createElement("button", {
+      }, _("button", {
         type: "button",
         className: "p-link",
         onClick: this.toggleAmPm
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-up"
-      })), /*#__PURE__*/React.createElement("span", null, display), /*#__PURE__*/React.createElement("button", {
+      })), _("span", null, display), _("button", {
         type: "button",
         className: "p-link",
         onClick: this.toggleAmPm
-      }, /*#__PURE__*/React.createElement("span", {
+      }, _("span", {
         className: "pi pi-chevron-down"
       })));
     } else {
@@ -3805,22 +3805,22 @@ class Calendar extends React.Component {
   }
 
   renderSeparator(separator) {
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-separator"
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "p-separator-spacer"
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-up"
-    })), /*#__PURE__*/React.createElement("span", null, separator), /*#__PURE__*/React.createElement("span", {
+    })), _("span", null, separator), _("span", {
       className: "p-separator-spacer"
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "pi pi-chevron-down"
     })));
   }
 
   renderTimePicker() {
     if (this.props.showTime || this.props.timeOnly) {
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-timepicker"
       }, this.renderHourPicker(), this.renderSeparator(':'), this.renderMinutePicker(), this.props.showSeconds && this.renderSeparator(':'), this.renderSecondPicker(), this.props.showMillisec && this.renderSeparator('.'), this.renderMiliSecondPicker(), this.props.hourFormat === '12' && this.renderSeparator(':'), this.renderAmPmPicker());
     }
@@ -3831,7 +3831,7 @@ class Calendar extends React.Component {
   renderInputElement() {
     if (!this.props.inline) {
       const className = classNames('p-inputtext p-component', this.props.inputClassName);
-      return /*#__PURE__*/React.createElement(InputText, {
+      return _(InputText, {
         ref: el => this.inputElement = ReactDOM.findDOMNode(el),
         id: this.props.inputId,
         name: this.props.name,
@@ -3856,7 +3856,7 @@ class Calendar extends React.Component {
 
   renderButton() {
     if (this.props.showIcon) {
-      return /*#__PURE__*/React.createElement(Button, {
+      return _(Button, {
         type: "button",
         icon: this.props.icon,
         onClick: this.onButtonClick,
@@ -3871,15 +3871,15 @@ class Calendar extends React.Component {
 
   renderButtonBar() {
     if (this.props.showButtonBar) {
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-datepicker-buttonbar"
-      }, /*#__PURE__*/React.createElement(Button, {
+      }, _(Button, {
         type: "button",
         label: this.props.locale.today,
         onClick: this.onTodayButtonClick,
         onKeyDown: e => this.onContainerButtonKeydown(e),
         className: this.props.todayButtonClassName
-      }), /*#__PURE__*/React.createElement(Button, {
+      }), _(Button, {
         type: "button",
         label: this.props.locale.clear,
         onClick: this.onClearButtonClick,
@@ -3894,7 +3894,7 @@ class Calendar extends React.Component {
   renderFooter() {
     if (this.props.footerTemplate) {
       const content = this.props.footerTemplate();
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-datepicker-footer"
       }, content);
     } else {
@@ -3924,12 +3924,12 @@ class Calendar extends React.Component {
     const timePicker = this.renderTimePicker();
     const buttonBar = this.renderButtonBar();
     const footer = this.renderFooter();
-    return /*#__PURE__*/React.createElement("span", {
+    return _("span", {
       ref: el => this.container = el,
       id: this.props.id,
       className: className,
       style: this.props.style
-    }, input, button, /*#__PURE__*/React.createElement(CalendarPanel, {
+    }, input, button, _(CalendarPanel, {
       ref: el => this.panel = ReactDOM.findDOMNode(el),
       className: panelClassName,
       style: this.props.panelStyle,
@@ -4093,7 +4093,7 @@ Calendar.propTypes = {
 
 class CalendarPanel extends React.Component {
   renderElement() {
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       ref: el => this.element = el,
       className: this.props.className,
       style: this.props.style
@@ -4124,7 +4124,7 @@ CalendarPanel.propTypes = {
 
 class Card extends React.Component {
   renderHeader() {
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-card-header"
     }, this.props.header);
   }
@@ -4133,30 +4133,30 @@ class Card extends React.Component {
     let title, subTitle, footer, children;
 
     if (this.props.title) {
-      title = /*#__PURE__*/React.createElement("div", {
+      title = _("div", {
         className: "p-card-title"
       }, this.props.title);
     }
 
     if (this.props.subTitle) {
-      subTitle = /*#__PURE__*/React.createElement("div", {
+      subTitle = _("div", {
         className: "p-card-subtitle"
       }, this.props.subTitle);
     }
 
     if (this.props.footer) {
-      footer = /*#__PURE__*/React.createElement("div", {
+      footer = _("div", {
         className: "p-card-footer"
       }, " ", this.props.footer);
     }
 
     if (this.props.children) {
-      children = /*#__PURE__*/React.createElement("div", {
+      children = _("div", {
         className: "p-card-content"
       }, " ", this.props.children, " ");
     }
 
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-card-body"
     }, title, subTitle, children, footer);
   }
@@ -4170,7 +4170,7 @@ class Card extends React.Component {
     }
 
     body = this.renderBody();
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: className,
       style: this.props.style
     }, header, body);
@@ -4289,7 +4289,7 @@ class Checkbox extends React.Component {
     let iconClass = classNames('p-checkbox-icon p-c', {
       'pi pi-check': this.props.checked
     });
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       ref: el => this.element = el,
       id: this.props.id,
       className: containerClass,
@@ -4297,9 +4297,9 @@ class Checkbox extends React.Component {
       onClick: this.onClick,
       onContextMenu: this.props.onContextMenu,
       onMouseDown: this.props.onMouseDown
-    }, /*#__PURE__*/React.createElement("div", {
+    }, _("div", {
       className: "p-hidden-accessible"
-    }, /*#__PURE__*/React.createElement("input", {
+    }, _("input", {
       type: "checkbox",
       "aria-labelledby": this.props.ariaLabelledBy,
       ref: el => this.input = el,
@@ -4312,12 +4312,12 @@ class Checkbox extends React.Component {
       disabled: this.props.disabled,
       readOnly: this.props.readOnly,
       required: this.props.required
-    })), /*#__PURE__*/React.createElement("div", {
+    })), _("div", {
       className: boxClass,
       ref: el => this.box = el,
       role: "checkbox",
       "aria-checked": this.props.checked
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: iconClass
     })));
   }
@@ -4811,15 +4811,15 @@ class Dropdown extends React.Component {
   }
 
   renderHiddenSelect(selectedOption) {
-    let placeHolderOption = /*#__PURE__*/React.createElement("option", {
+    let placeHolderOption = _("option", {
       value: ""
     }, this.props.placeholder);
-    let option = selectedOption ? /*#__PURE__*/React.createElement("option", {
+    let option = selectedOption ? _("option", {
       value: selectedOption.value
     }, this.getOptionLabel(selectedOption)) : null;
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-hidden-accessible p-dropdown-hidden-select"
-    }, /*#__PURE__*/React.createElement("select", {
+    }, _("select", {
       ref: el => this.nativeSelect = el,
       required: this.props.required,
       name: this.props.name,
@@ -4829,9 +4829,9 @@ class Dropdown extends React.Component {
   }
 
   renderKeyboardHelper() {
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-hidden-accessible"
-    }, /*#__PURE__*/React.createElement("input", {
+    }, _("input", {
       ref: el => this.focusInput = el,
       id: this.props.inputId,
       type: "text",
@@ -4850,7 +4850,7 @@ class Dropdown extends React.Component {
   renderLabel(label) {
     if (this.props.editable) {
       let value = label || this.props.value || '';
-      return /*#__PURE__*/React.createElement("input", {
+      return _("input", {
         ref: el => this.editableInput = el,
         type: "text",
         defaultValue: value,
@@ -4871,7 +4871,7 @@ class Dropdown extends React.Component {
         'p-placeholder': label === null && this.props.placeholder,
         'p-dropdown-label-empty': label === null && !this.props.placeholder
       });
-      return /*#__PURE__*/React.createElement("label", {
+      return _("label", {
         className: className
       }, label || this.props.placeholder || 'empty');
     }
@@ -4879,7 +4879,7 @@ class Dropdown extends React.Component {
 
   renderClearIcon() {
     if (this.props.value != null && this.props.showClear && !this.props.disabled) {
-      return /*#__PURE__*/React.createElement("i", {
+      return _("i", {
         className: "p-dropdown-clear-icon pi pi-times",
         onClick: this.clear
       });
@@ -4889,12 +4889,12 @@ class Dropdown extends React.Component {
   }
 
   renderDropdownIcon() {
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       className: "p-dropdown-trigger",
       role: "button",
       "aria-haspopup": "listbox",
       "aria-expanded": this.state.overlayVisible
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: "p-dropdown-trigger-icon pi pi-chevron-down p-clickable"
     }));
   }
@@ -4909,7 +4909,7 @@ class Dropdown extends React.Component {
     if (items) {
       return items.map(option => {
         let optionLabel = this.getOptionLabel(option);
-        return /*#__PURE__*/React.createElement(DropdownItem, {
+        return _(DropdownItem, {
           key: this.getOptionKey(option),
           label: optionLabel,
           option: option,
@@ -4926,9 +4926,9 @@ class Dropdown extends React.Component {
 
   renderFilter() {
     if (this.props.filter) {
-      return /*#__PURE__*/React.createElement("div", {
+      return _("div", {
         className: "p-dropdown-filter-container"
-      }, /*#__PURE__*/React.createElement("input", {
+      }, _("input", {
         ref: el => this.filterInput = el,
         type: "text",
         autoComplete: "off",
@@ -4937,7 +4937,7 @@ class Dropdown extends React.Component {
         onKeyDown: this.onFilterInputKeyDown,
         onChange: this.onFilterInputChange,
         value: this.state.filter
-      }), /*#__PURE__*/React.createElement("span", {
+      }), _("span", {
         className: "p-dropdown-filter-icon pi pi-search"
       }));
     } else {
@@ -5043,7 +5043,7 @@ class Dropdown extends React.Component {
       this.editableInput.value = value;
     }
 
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       id: this.props.id,
       ref: el => this.container = el,
       className: className,
@@ -5051,7 +5051,7 @@ class Dropdown extends React.Component {
       onClick: this.onClick,
       onMouseDown: this.props.onMouseDown,
       onContextMenu: this.props.onContextMenu
-    }, keyboardHelper, hiddenSelect, labelElement, clearIcon, dropdownIcon, /*#__PURE__*/React.createElement(DropdownPanel, {
+    }, keyboardHelper, hiddenSelect, labelElement, clearIcon, dropdownIcon, _(DropdownPanel, {
       ref: el => this.panel = el,
       appendTo: this.props.appendTo,
       panelStyle: this.props.panelStyle,
@@ -5168,7 +5168,7 @@ class DropdownItem extends React.Component {
       'p-dropdown-item-empty': !this.props.label || this.props.label.length === 0
     });
     let content = this.props.template ? this.props.template(this.props.option) : this.props.label;
-    return /*#__PURE__*/React.createElement("li", {
+    return _("li", {
       className: className,
       onClick: this.onClick,
       "aria-label": this.props.label,
@@ -5201,18 +5201,18 @@ DropdownItem.propTypes = {
 class DropdownPanel extends React.Component {
   renderElement() {
     let className = classNames('p-dropdown-panel p-hidden p-input-overlay', this.props.panelClassName);
-    return /*#__PURE__*/React.createElement("div", {
+    return _("div", {
       ref: el => this.element = el,
       className: className,
       style: this.props.panelStyle,
       onClick: this.props.onClick
-    }, this.props.filter, /*#__PURE__*/React.createElement("div", {
+    }, this.props.filter, _("div", {
       ref: el => this.itemsWrapper = el,
       className: "p-dropdown-items-wrapper",
       style: {
         maxHeight: this.props.scrollHeight || 'auto'
       }
-    }, /*#__PURE__*/React.createElement("ul", {
+    }, _("ul", {
       className: "p-dropdown-items p-dropdown-list p-component",
       role: "listbox"
     }, this.props.children)));
@@ -5787,7 +5787,7 @@ class InputMask extends React.Component {
   }
 
   render() {
-    return /*#__PURE__*/React.createElement(InputText, {
+    return _(InputText, {
       id: this.props.id,
       ref: el => this.input = ReactDOM.findDOMNode(el),
       type: this.props.type,
@@ -6431,7 +6431,7 @@ class InputNumber extends React.Component {
   renderInputElement() {
     const className = classNames('p-inputnumber-input', this.props.inputClassName);
     const valueToRender = this.formatValue(this.props.value);
-    return /*#__PURE__*/React.createElement(InputText, {
+    return _(InputText, {
       ref: el => this.inputEl = ReactDOM.findDOMNode(el),
       id: this.props.inputId,
       style: this.props.inputStyle,
@@ -6468,7 +6468,7 @@ class InputNumber extends React.Component {
       'p-disabled': this.props.disabled
     });
     const icon = classNames('p-inputnumber-button-icon', this.props.incrementButtonIcon);
-    return /*#__PURE__*/React.createElement("button", {
+    return _("button", {
       type: "button",
       className: className,
       onMouseLeave: this.onUpButtonMouseLeave,
@@ -6478,7 +6478,7 @@ class InputNumber extends React.Component {
       onKeyUp: this.onUpButtonKeyUp,
       disabled: this.props.disabled,
       tabIndex: "-1"
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: icon
     }));
   }
@@ -6488,7 +6488,7 @@ class InputNumber extends React.Component {
       'p-disabled': this.props.disabled
     });
     const icon = classNames('p-inputnumber-button-icon', this.props.decrementButtonIcon);
-    return /*#__PURE__*/React.createElement("button", {
+    return _("button", {
       type: "button",
       className: className,
       onMouseLeave: this.onDownButtonMouseLeave,
@@ -6498,7 +6498,7 @@ class InputNumber extends React.Component {
       onKeyUp: this.onDownButtonKeyUp,
       disabled: this.props.disabled,
       tabIndex: "-1"
-    }, /*#__PURE__*/React.createElement("span", {
+    }, _("span", {
       className: icon
     }));
   }
@@ -6508,12 +6508,12 @@ class InputNumber extends React.Component {
     const downButton = this.props.showButtons && this.renderDownButton();
 
     if (this.isStacked()) {
-      return /*#__PURE__*/React.createElement("span", {
+      return _("span", {
         className: "p-inputnumber-button-group"
       }, upButton, downButton);
     }
 
-    return /*#__PURE__*/React.createElement(React.Fragment, null, upButton, downButton);
+    return _(React.Fragment, null, upButton, downButton);
   }
 
   render() {
@@ -6526,7 +6526,7 @@ class InputNumber extends React.Component {
     });
     const inputElement = this.renderInputElement();
     const buttonGroup = this.renderButtonGroup();
-    return /*#__PURE__*/React.createElement("span", {
+    return _("span", {
       ref: el => this.element = el,
       id: this.props.id,
       className: className,
@@ -6724,7 +6724,7 @@ class InputSwitch extends React.Component {
       'p-inputswitch-focus': this.state.focused
     });
     let inputSwitchProps = ObjectUtils.findDiffKeys(this.props, InputSwitch.defaultProps);
-    return /*#__PURE__*/React.createElement("div", Object.assign({
+    return _("div", Object.assign({
       ref: el => this.container = el,
       id: this.props.id,
       className: className,
@@ -6732,9 +6732,9 @@ class InputSwitch extends React.Component {
       onClick: this.onClick,
       role: "checkbox",
       "aria-checked": this.props.checked
-    }, inputSwitchProps), /*#__PURE__*/React.createElement("div", {
+    }, inputSwitchProps), _("div", {
       className: "p-hidden-accessible"
-    }, /*#__PURE__*/React.createElement("input", {
+    }, _("input", {
       ref: el => this.input = el,
       type: "checkbox",
       id: this.props.inputId,
@@ -6748,7 +6748,7 @@ class InputSwitch extends React.Component {
       role: "switch",
       "aria-checked": this.props.checked,
       "aria-labelledby": this.props.ariaLabelledBy
-    })), /*#__PURE__*/React.createElement("span", {
+    })), _("span", {
       className: "p-inputswitch-slider"
     }));
   }
@@ -6854,7 +6854,7 @@ class InputText extends React.Component {
       'p-filled': this.props.value != null && this.props.value.toString().length > 0 || this.props.defaultValue != null && this.props.defaultValue.toString().length > 0
     });
     let inputProps = ObjectUtils.findDiffKeys(this.props, InputText.defaultProps);
-    return /*#__PURE__*/React.createElement("input", Object.assign({
+    return _("input", Object.assign({
       ref: el => this.element = el
     }, inputProps, {
       className: className,
@@ -7002,7 +7002,7 @@ class InputTextarea extends React.Component {
       'p-inputtextarea-resizable': this.props.autoResize
     });
     let textareaProps = ObjectUtils.findDiffKeys(this.props, InputTextarea.defaultProps);
-    return /*#__PURE__*/React.createElement("textarea", Object.assign({}, textareaProps, {
+    return _("textarea", Object.assign({}, textareaProps, {
       className: className,
       ref: input => this.element = input,
       onFocus: this.onFocus,
@@ -7025,4 +7025,171 @@ InputTextarea.propTypes = {
 	onInput: PropTypes.func,
 	tooltip: PropTypes.string,
 	tooltipOptions: PropTypes.object
+};
+
+class TabPanel extends React.Component {
+
+
+
+}
+TabPanel.defaultProps = {
+    header: null,
+    leftIcon: null,
+    rightIcon: null,
+    disabled: false,
+    headerStyle: null,
+    headerClassName: null,
+    contentStyle: null,
+    contentClassName: null
+}
+
+TabPanel.propTypes = {
+    header: PropTypes.any,
+    leftIcon: PropTypes.string,
+    rightIcon: PropTypes.string,
+    disabled: PropTypes.bool,
+    headerStyle: PropTypes.object,
+    headerClassName: PropTypes.string,
+    contentStyle: PropTypes.object,
+    contentClassName: PropTypes.string
+};
+"use strict";
+
+class TabView extends React.Component {
+  constructor(props) {
+    super(props);
+
+    if (!this.props.onTabChange) {
+      this.state = {
+        activeIndex: this.props.activeIndex
+      };
+    }
+
+    this.id = this.props.id || UniqueComponentId();
+  }
+
+  isSelected(index) {
+    const activeIndex = this.props.onTabChange ? this.props.activeIndex : this.state.activeIndex;
+    return activeIndex === index;
+  }
+
+  onTabHeaderClick(event, tab, index) {
+    if (!tab.props.disabled) {
+      if (this.props.onTabChange) {
+        this.props.onTabChange({
+          originalEvent: event,
+          index: index
+        });
+      } else {
+        this.setState({
+          activeIndex: index
+        });
+      }
+    }
+
+    event.preventDefault();
+  }
+
+  renderTabHeader(tab, index) {
+    const selected = this.isSelected(index);
+    const className = classNames(tab.props.headerClassName, 'p-unselectable-text', {
+      'p-tabview-selected p-highlight': selected,
+      'p-disabled': tab.props.disabled
+    });
+    const id = this.id + '_header_' + index;
+    const ariaControls = this.id + '_content_' + index;
+    const tabIndex = tab.props.disabled ? '-1' : null;
+    return _("li", {
+      className: className,
+      style: tab.props.headerStyle,
+      role: "presentation"
+    }, _("a", {
+      role: "tab",
+      href: '#' + ariaControls,
+      onClick: event => this.onTabHeaderClick(event, tab, index),
+      id: id,
+      "aria-controls": ariaControls,
+      "aria-selected": selected,
+      tabIndex: tabIndex
+    }, tab.props.leftIcon && _("span", {
+      className: classNames('p-tabview-left-icon ', tab.props.leftIcon)
+    }), _("span", {
+      className: "p-tabview-title"
+    }, tab.props.header), tab.props.rightIcon && _("span", {
+      className: classNames('p-tabview-right-icon ', tab.props.rightIcon)
+    })));
+  }
+
+  renderTabHeaders() {
+    return React.Children.map(this.props.children, (tab, index) => {
+      return this.renderTabHeader(tab, index);
+    });
+  }
+
+  renderNavigator() {
+    const headers = this.renderTabHeaders();
+    return _("ul", {
+      className: "p-tabview-nav p-reset",
+      role: "tablist"
+    }, headers);
+  }
+
+  renderContent() {
+    const contents = React.Children.map(this.props.children, (tab, index) => {
+      if (!this.props.renderActiveOnly || this.isSelected(index)) {
+        return this.createContent(tab, index);
+      }
+    });
+    return _("div", {
+      className: "p-tabview-panels"
+    }, contents);
+  }
+
+  createContent(tab, index) {
+    const selected = this.isSelected(index);
+    const className = classNames(tab.props.contentClassName, 'p-tabview-panel', {
+      'p-hidden': !selected
+    });
+    const id = this.id + '_content_' + index;
+    const ariaLabelledBy = this.id + '_header_' + index;
+    return _("div", {
+      id: id,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-hidden": !selected,
+      className: className,
+      style: tab.props.contentStyle,
+      role: "tabpanel"
+    }, !this.props.renderActiveOnly ? tab.props.children : selected && tab.props.children);
+  }
+
+  render() {
+    const className = classNames('p-tabview p-component p-tabview-top', this.props.className);
+    const navigator = this.renderNavigator();
+    const content = this.renderContent();
+    return _("div", {
+      id: this.props.id,
+      className: className,
+      style: this.props.style
+    }, navigator, content);
+  }
+
+}
+
+
+TabView.defaultProps = {
+    id: null,
+    activeIndex: 0,
+    style: null,
+    className: null,
+    renderActiveOnly: true,
+    onTabChange: null
+}
+
+TabView.propTypes = {
+    id: PropTypes.string,
+    activeIndex: PropTypes.number,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    renderActiveOnly: PropTypes.bool,
+    onTabChange: PropTypes.func
 };

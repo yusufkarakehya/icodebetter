@@ -810,6 +810,9 @@ public class UIEngine {
 					e);
 		}
 	}
+	public W5GridResult getGridResult(Map<String, Object> scd, int gridId, Map<String, String> requestParams) {
+		return metadataLoader.getGridResult(scd, gridId, requestParams, false);
+	}
 	
 	public W5PageResult getPageResult(Map<String, Object> scd, int pageId, Map<String, String> requestParams) {
 		W5PageResult pr = null;

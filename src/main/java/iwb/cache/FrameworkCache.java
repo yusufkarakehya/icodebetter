@@ -75,6 +75,7 @@ public class FrameworkCache {
 	final private static Map<String, Map<Integer, W5Form>> wForms = new HashMap<String, Map<Integer, W5Form>>();
 	final private static Map<String, Map<Integer, W5GlobalFunc>> wGlobalFuncs = new HashMap<String, Map<Integer, W5GlobalFunc>>();
 	final public static Map<String, Map<Integer, W5Page>> wTemplates = new HashMap<String, Map<Integer, W5Page>>();
+	final public static Map<String, Map<String, W5Page>> wTemplates2 = new HashMap<String, Map<String, W5Page>>();
 	final private static Map<String, Map<Integer, W5Component>> wComponents = new HashMap<String, Map<Integer, W5Component>>();
 
 	final private static Map<String, Map<Integer, W5Table>> wTables = new HashMap<String, Map<Integer, W5Table>>();
@@ -140,6 +141,7 @@ public class FrameworkCache {
 		wq = wForms.get(projectId); if(wq!=null)wq.clear();
 		wq = wGlobalFuncs.get(projectId); if(wq!=null)wq.clear();
 		wq = wTemplates.get(projectId); if(wq!=null)wq.clear();
+		wq = wTemplates2.get(projectId); if(wq!=null)wq.clear();
 		wq = wCards.get(projectId); if(wq!=null)wq.clear();
 		wq = wListViews.get(projectId); if(wq!=null)wq.clear();
 		wq = mListViews.get(projectId); if(wq!=null)wq.clear();
@@ -221,6 +223,14 @@ public class FrameworkCache {
 			return null;
 		} else
 			return wComponents.get(projectId).get(componentId);
+	}
+
+	public static void setComponent(Object o, W5Component component) {
+		String projectId = getProjectId(o, "3351."+component.getComponentId());
+		if(!wComponents.containsKey(projectId)){
+			wComponents.put(projectId, new HashMap());
+		}
+		wComponents.get(projectId).put(component.getComponentId(), component);
 	}
 	public static void setComponentMap(Object o, Map<Integer, W5Component> m){
 		String projectId = getProjectId(o, null);
@@ -436,12 +446,16 @@ public class FrameworkCache {
 			return wTemplates.get(projectId).get(pageId);
 	}
 	
-	public static void addX(Map m,String projectId, int id, Object obj){
-		if(m.get(projectId)==null){
-			m.put(projectId, new HashMap());
-		}
-		((Map<Integer, Object>)m.get(projectId)).put(id, obj);
+	
+	public static W5Page getPageByName(Object o, String pageName){
+		String projectId = getProjectId(o, "63."+pageName);
+		if(wTemplates2.get(projectId)==null){
+			wTemplates2.put(projectId, new HashMap());
+			return null;
+		} else
+			return wTemplates2.get(projectId).get(pageName);
 	}
+	
 	
 	public static void addPage(Object o, W5Page page){
 		int pageId = page.getPageId();
@@ -451,6 +465,10 @@ public class FrameworkCache {
 			wTemplates.put(projectId, new HashMap());
 		}
 		wTemplates.get(projectId).put(pageId, page);
+		if(wTemplates2.get(projectId)==null){
+			wTemplates2.put(projectId, new HashMap());
+		}
+		wTemplates2.get(projectId).put(page.getDsc(), page);
 	}
 	
 	public static W5LookUp getLookUp(Object o, int lookUpId){

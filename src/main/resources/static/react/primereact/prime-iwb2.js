@@ -21,6 +21,8 @@ let dgColors3 = [
     "secondary",
     "warning"
 ];
+
+const Component = React.Component;
 // ReactRouterDOM for routing
 const Link = ReactRouterDOM.Link;
 const Route = ReactRouterDOM.Route;
@@ -28,7 +30,8 @@ const Switch = ReactRouterDOM.Switch;
 const NavLink = ReactRouterDOM.NavLink;
 const Redirect = ReactRouterDOM.Redirect;
 const HashRouter = ReactRouterDOM.HashRouter;
-
+const withRouter = ReactRouterDOM.withRouter;
+const CSSTransition = ReactTransitionGroup.CSSTransition;
 
 // FW Community Components
 

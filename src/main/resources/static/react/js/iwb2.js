@@ -670,7 +670,7 @@ iwb = {
                 // only-if-cached
                 credentials: "same-origin", // include, same-origin, *omit
                 headers: {
-                    "content-type": "application/json"
+                    "Content-Type": "application/json"
                 },
                 method: "POST", // *GET, POST, PUT, DELETE, etc.
                 mode: "cors", // no-cors, cors, *same-origin
@@ -6994,7 +6994,7 @@ class XPage extends React.PureComponent {
                             // only-if-cached
                             credentials: "same-origin", // include, same-origin, *omit
                             headers: {
-                                "content-type": "application/json"
+                                "Content-Type": "application/json"
                             },
                             method: "POST", // *GET, POST, PUT, DELETE, etc.
                             mode: "cors", // no-cors, cors, *same-origin
@@ -7213,7 +7213,7 @@ class XPage4Card extends React.PureComponent {
                             // only-if-cached
                             credentials: "same-origin", // include, same-origin, *omit
                             headers: {
-                                "content-type": "application/json"
+                                "Content-Type": "application/json"
                             },
                             method: "POST", // *GET, POST, PUT, DELETE, etc.
                             mode: "cors", // no-cors, cors, *same-origin
@@ -7637,7 +7637,7 @@ class XMainPanel extends React.PureComponent {
                             // only-if-cached
                             credentials: "same-origin", // include, same-origin, *omit
                             headers: {
-                                "content-type": "application/json"
+                                "Content-Type": "application/json"
                             },
                             method: "POST", // *GET, POST, PUT, DELETE, etc.
                             mode: "cors", // no-cors, cors, *same-origin
