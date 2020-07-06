@@ -4074,12 +4074,7 @@ columns:[
 			// masterRecord Control
 			
 			if(pr.getRequestParams()!=null) {
-				if (pr.getMasterRecordList() != null
-						&& !pr.getMasterRecordList().isEmpty())
-					buf.append("\n_mrl=")
-							.append(serializeTableHelperList(customizationId,
-									xlocale, pr.getMasterRecordList()))
-							.append(";\n");
+
 				// request
 				buf.append("var _request=")
 						.append(GenericUtil.fromMapToJsonString(pr
@@ -4261,7 +4256,7 @@ columns:[
 					.append(GenericUtil.fromMapToJsonString(publishedAppSetting))
 					.append(";\n");
 
-			buf.append(serializeLookUp(pr));
+			buf2.append(serializeLookUp(pr));
 
 			int customObjectCount=1;
 			for (Object i : pr.getPageObjectList()) {

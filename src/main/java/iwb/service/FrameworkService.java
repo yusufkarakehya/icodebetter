@@ -46,6 +46,7 @@ import iwb.domain.helper.W5ReportCellHelper;
 import iwb.domain.result.M5ListResult;
 import iwb.domain.result.W5FormResult;
 import iwb.domain.result.W5GlobalFuncResult;
+import iwb.domain.result.W5GridResult;
 import iwb.domain.result.W5PageResult;
 import iwb.domain.result.W5QueryResult;
 import iwb.domain.result.W5TableRecordInfoResult;
@@ -182,6 +183,9 @@ public class FrameworkService {
 		return uiEngine.getPageResult(scd, pageId, requestParams);
 	}
 
+	public W5GridResult getGridResult(Map<String, Object> scd, int gridId) {
+		return uiEngine.getGridResult(scd, gridId, new HashMap());
+	}
 
 	public W5GlobalFuncResult executeFunc(Map<String, Object> scd, int globalFuncId, Map<String, String> parameterMap,
 			short accessSourceType) {

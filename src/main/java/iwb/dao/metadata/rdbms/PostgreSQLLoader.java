@@ -78,6 +78,7 @@ import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
 import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
+import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
 @Repository
@@ -105,7 +106,13 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			 */
 
 		W5Form form = (W5Form) getMetadataObject("W5Form","formId", fr.getFormId(),
-					projectId, "Form"); // ozel bir client icin varsa
+					projectId, "Form"); 
+		if(form.getJsCode()!=null && form.getJsCode().contains("<") && form.getJsCode().contains(">")) {
+			W5Project po = FrameworkCache.getProject(projectId);
+			if(GenericUtil.hasPartInside2("5,8,9", po.getUiWebFrontendTip()))try{//JSX check
+				form.setJsCode(NashornUtil.babelTranspileJSX(form.getJsCode()));
+			}catch(Exception ee) {ee.printStackTrace();}
+		}
 
 		form.set_formCells(find(
 				"from W5FormCell t where t.formId=?0 AND t.projectUuid=?1 order by t.tabOrder, t.xOrder, t.dsc",
@@ -452,15 +459,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	private void loadPage(W5PageResult pr) {
 
 		String projectId = FrameworkCache.getProjectId(pr.getScd(), "63." + pr.getPageId());
-			/*
-			 * try { page = (W5Page) (redisGlobalMap.get(projectId + ":page:" +
-			 * pr.getTemplateId()));//
-			 * FrameworkCache.getRedissonClient().getMap(String.format("icb-cache4:%s:page",
-			 * // projectId)); if (page != null && page.get_pageObjectList() == null) {
-			 * page.set_pageObjectList(new ArrayList()); } } catch (Exception e) { throw new
-			 * IWBException("framework", "Redis.Page", pr.getTemplateId(), null,
-			 * "Loading Page from Redis", e); }
-			 */
+
 
 		W5Page page = (W5Page) getMetadataObject("W5Page","pageId",
 					pr.getPageId(), projectId, "Page"); 
@@ -469,6 +468,8 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				"from W5PageObject t where t.activeFlag=1 AND t.pageId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 				pr.getPageId(), projectId));
 
+		if(page.getPageType()==2 && page.getObjectId()==2)page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
+		
 		for (W5PageObject to : page.get_pageObjectList())
 			if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
 				List p = new ArrayList();
@@ -548,8 +549,13 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			 */
 		} else {
 			card = (W5Card) getMetadataObject("W5Card","cardId",
-					cr.getCardId(), projectId, "Card"); // ozel bir client
-															// icin varsa
+					cr.getCardId(), projectId, "Card"); 
+			if(card.getJsCode()!=null && card.getJsCode().contains("return") && card.getJsCode().contains("<") && card.getJsCode().contains(">")) {
+				W5Project po = FrameworkCache.getProject(projectId);
+				if(GenericUtil.hasPartInside2("5,8,9", po.getUiWebFrontendTip()))try{//JSX check
+					card.setJsCode(NashornUtil.babelTranspileJSX(card.getJsCode()));
+				}catch(Exception ee) {ee.printStackTrace();}
+			}
 
 			card.set_toolbarItemList(find(
 					"from W5ObjectToolbarItem t where t.objectType=8 AND t.objectId=?0 AND t.projectUuid=?1 order by t.tabOrder",
@@ -709,12 +715,22 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			 * gr.getGridId(), null, "Loading Grid from Redis", e); }
 			 */
 		} else {
+			boolean jsx = GenericUtil.hasPartInside2("5,8,9", FrameworkCache.getProject(projectId).getUiWebFrontendTip());
 			grid = (W5Grid) getMetadataObject("W5Grid","gridId", gr.getGridId(),
-					projectId, "Grid"); // ozel bir client icin varsa
+					projectId, "Grid"); 
+			if(jsx && grid.getJsCode()!=null && grid.getJsCode().contains("<") && grid.getJsCode().contains(">"))try{//JSX check
+				grid.setJsCode(NashornUtil.babelTranspileJSX(grid.getJsCode()));
+			}catch(Exception ee) {ee.printStackTrace();}
+
 
 			grid.set_gridColumnList(
 					find("from W5GridColumn t where t.projectUuid=?0 AND t.gridId=?1 order by t.tabOrder", projectId,
 							gr.getGridId()));
+			if(jsx)for(W5GridColumn c:grid.get_gridColumnList())if(c.getRenderer()!=null && c.getRenderer().contains("<") && c.getRenderer().contains(">")) try{//JSX
+				c.setRenderer(NashornUtil.babelTranspileJSX(c.getRenderer()));
+				if(c.getRenderer().endsWith(";"))c.setRenderer(c.getRenderer().substring(0, c.getRenderer().length()-1));
+			}catch(Exception ee) {ee.printStackTrace();}
+			
 			grid.set_toolbarItemList(find(
 					"from W5ObjectToolbarItem t where t.objectType=?0 AND t.objectId=?1 AND t.projectUuid=?2 order by t.tabOrder",
 					(short) 5, gr.getGridId(), projectId));
@@ -1494,6 +1510,9 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		Map<Integer, W5Component> wComponentMap = new HashMap<Integer, W5Component>();
 		List<W5Component> l = find("from W5Component t where t.projectUuid=?0", projectId);
 		for (W5Component c : l) {
+			if(c.getFrontendLang()==2)try{
+				c.setCode(NashornUtil.babelTranspileJSX(c.getCode()));
+			}catch(Exception ee) {ee.printStackTrace();}
 			wComponentMap.put(c.getComponentId(), c);
 		}
 		FrameworkCache.setComponentMap(projectId, wComponentMap);
@@ -1842,6 +1861,19 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 			if (onErrorMsg == null)
 				return null;
 			throw new IWBException("framework", onErrorMsg, objectId, null, "Wrong " + onErrorMsg + " ID: " + objectId, null);
+		} else
+			return list.get(0);
+	}
+	
+	@Override
+	public Object getMetadataObjectByName(String objectName, String name, Object projectId, String onErrorMsg) {
+		StringBuilder hql = new StringBuilder();
+		hql.append("from ").append(objectName).append(" t where t.dsc=?0 AND t.projectUuid=?1");
+		List list = find(hql.toString(), name, projectId);
+		if (list.size() == 0) {
+			if (onErrorMsg == null)
+				return null;
+			throw new IWBException("framework", onErrorMsg, 0, null, "Wrong " + onErrorMsg + ": " + name, null);
 		} else
 			return list.get(0);
 	}
