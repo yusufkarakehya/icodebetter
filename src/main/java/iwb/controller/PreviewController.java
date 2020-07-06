@@ -152,12 +152,13 @@ public class PreviewController implements InitializingBean {
     		uri = uri.substring(uri.lastIndexOf('/')+1);
     		uri = uri.substring(0, uri.length()-3);
         	String js = FrameworkCache.getPageResource(scd, uri);
-        	if(js!=null){
-        		response.setContentType("text/javascript; charset=UTF-8");
+    		response.setContentType("text/javascript; charset=UTF-8");
+    		if(js!=null){
         		response.getWriter().write(js);
+        	}else {
+        		response.getWriter().write("/* no content */");
         	}
     	}
-//    	int pageId =  ;
 
 		response.getWriter().close();
     	return null;
@@ -203,10 +204,11 @@ public class PreviewController implements InitializingBean {
 		response.getWriter().close();
 	}
 	
-	@RequestMapping("/*/ajaxQueryData")
+	@RequestMapping({"/*/ajaxQueryData", "/*/query/*"})
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int queryId = GenericUtil.uInt(request, "_qid");
+		if(queryId==0) queryId = getLastId(request.getRequestURI());
 //		JSONObject jo = null;
 		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
 /*		if(GenericUtil.safeEquals(request.getContentType(),"application/json")){
@@ -390,10 +392,11 @@ public class PreviewController implements InitializingBean {
 		}
 	}
 
-	@RequestMapping("/*/ajaxPostForm")
+	@RequestMapping({"/*/ajaxPostForm", "/*/submit-form/*"})
 	public void hndAjaxPostForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int formId = GenericUtil.uInt(request, "_fid");
+		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndAjaxPostForm(" + formId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
@@ -555,8 +558,8 @@ public class PreviewController implements InitializingBean {
 
 	}
 
-	@RequestMapping("/*/ajaxExecDbFunc")
-	public void hndAjaxExecDbFunc(HttpServletRequest request, HttpServletResponse response)
+	@RequestMapping({"/*/ajaxExecDbFunc", "/*/ajaxExecFunc", "/*/func/*"})
+	public void hndAjaxExecFunc(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxExecDbFunc");
 
@@ -588,6 +591,7 @@ public class PreviewController implements InitializingBean {
 			globalFuncId = -GenericUtil.uInt(request, "_fid"); // +:globalFuncId,
 															// -:formId
 		}
+		if(globalFuncId==0) globalFuncId = getLastId(request.getRequestURI());
 		W5GlobalFuncResult dbFuncResult = GenericUtil.uInt(request, "_notran")==0 ? service.executeFunc(scd, globalFuncId, GenericUtil.getParameterMap(request),
 				accessType): 
 					service.executeFuncNT(scd, globalFuncId, GenericUtil.getParameterMap(request),
@@ -601,10 +605,11 @@ public class PreviewController implements InitializingBean {
 
 	
 
-	@RequestMapping("/*/ajaxGetFormSimple")
+	@RequestMapping({"/*/ajaxGetFormSimple","/*/form-values/*"})
 	public void hndGetFormSimple(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int formId = GenericUtil.uInt(request, "_fid");
+		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndGetFormSimple(" + formId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
@@ -660,12 +665,18 @@ public class PreviewController implements InitializingBean {
 		}
 	}
 	
+	private int getLastId(String uri) {
+		String[] uuri = uri.split("/");
+		String luri = uuri[uuri.length-1];
+		if(luri.endsWith(".js"))luri=luri.substring(0,uri.length()-3);
+		return GenericUtil.uInt(luri);
+	}
 
-
-	@RequestMapping("/*/showForm")
+	@RequestMapping({"/*/showForm", "/*/forms/*"})
 	public void hndShowForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int formId = GenericUtil.uInt(request, "_fid");
+		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndShowForm(" + formId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
@@ -679,10 +690,12 @@ public class PreviewController implements InitializingBean {
 
 	}
 	
-	@RequestMapping("/*/showMForm")
+	
+	@RequestMapping({"/*/showMForm", "/*/mforms/*"})
 	public void hndShowMForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int formId = GenericUtil.uInt(request, "_fid");
+		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndShowMForm(" + formId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
@@ -936,10 +949,11 @@ public class PreviewController implements InitializingBean {
 	}
 	
 	
-	@RequestMapping("/*/showPage")
+	@RequestMapping({"/*/showPage", "/*/pages/*"})
 	public void hndShowPage(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int pageId = GenericUtil.uInt(request, "_tid");
+		if(pageId==0) pageId = getLastId(request.getRequestURI());
 		logger.info("hndShowPage(" + pageId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
@@ -955,36 +969,14 @@ public class PreviewController implements InitializingBean {
 
 	}
 
-	
-	
-	@RequestMapping("/*/pages/*")
-	public void hndShowPage2(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String[] uuri = request.getRequestURI().split("/");
-		int pageId = GenericUtil.uInt(uuri[uuri.length-1]);
-		logger.info("hndShowPage2(" + pageId + ")");
-
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-
-		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
-
-
-		if(pageResult.getPage().getPageType()!=0)
-			response.setContentType("application/javascript");
-
-		response.getWriter().write(getViewAdapter(scd, request).serializeTemplate(pageResult).toString());
-		response.getWriter().close();
-
-	}
 
 	
 	
 	@RequestMapping("/*/grids/*")
-	public void hndShowGrid2(HttpServletRequest request, HttpServletResponse response)
+	public void hndShowGrid(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String[] uuri = request.getRequestURI().split("/");
-		int gridId = GenericUtil.uInt(uuri[uuri.length-1]);
-		logger.info("hndShowGrid2(" + gridId + ")");
+		int gridId = getLastId(request.getRequestURI());
+		logger.info("hndShowGrid(" + gridId + ")");
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
@@ -1594,39 +1586,6 @@ public class PreviewController implements InitializingBean {
 		response.getWriter().close();		
 	}
 
-
-	@RequestMapping("/*/ajaxQueryData4Debug")
-	public void hndAjaxQueryData4Debug(
-			HttpServletRequest request,
-			HttpServletResponse response)
-			throws ServletException, IOException {
-		logger.info("hndAjaxQueryData4Debug"); 
-		
-    	Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
-		int roleId =(Integer)scd.get("roleId");
-		if(roleId!=0){
-			throw new IWBException("security","Developer",0,null, "You Have to Be Developer TO Run this", null);
-		}
-
-		int queryId= GenericUtil.uInt(request, "_qid");
-
-		Object o = service.executeQuery4Debug(scd, queryId, GenericUtil.getParameterMap(request));
-		
-		response.setContentType("application/json");
-		if(o instanceof W5QueryResult)
-			response.getWriter().write(getViewAdapter(scd, request).serializeQueryData((W5QueryResult)o).toString());
-		else {
-			Map m = (Map)o;//new HashMap();
-			m.put("success", true);
-//			m.put("data", queryResult.getData());
-//			Map m2 = new HashMap();m2.put("startRow", 0);m2.put("fetchCount", queryResult.getData().size());m2.put("totalCount", queryResult.getData().size());
-//			m.put("browseInfo", m2);
-	//		m.put("sql", queryResult.getExecutedSql());
-			response.getWriter().write(GenericUtil.fromMapToJsonString2Recursive(m));
-		}
-		response.getWriter().close();
-
-	}
 	
 	@RequestMapping("/*/ajaxQueryData4Pivot")
 	public void hndAjaxQueryData4Pivot(HttpServletRequest request, HttpServletResponse response)
@@ -1671,7 +1630,9 @@ public class PreviewController implements InitializingBean {
     			int i = GenericUtil.uInt(id);
     			if(i!=0) {
     				String js = FrameworkCache.getComponentCss(scd, i);	
-    				if(js!=null)totalCss.append("\n").append(js);
+    				if(js!=null) {
+    					totalCss.append("\n").append(js);
+    				}
     			}
     		}
     		
@@ -1679,25 +1640,31 @@ public class PreviewController implements InitializingBean {
     		if(totalCss.length()>0){
         		response.getWriter().write(totalCss.toString());
         	} else {
-        		
+        		response.getWriter().write("/* no content */");
         	}
-    	} else if(uri.endsWith(".js")){
+    	} else {
     		uri = uri.substring(uri.lastIndexOf('/')+1);
-    		uri = uri.substring(0, uri.length()-3);
+    		if(uri.endsWith(".js"))uri = uri.substring(0, uri.length()-3);
     		String[] ids = uri.split(",");
     		StringBuilder totalJs = new StringBuilder();
     		for(String id:ids) {
     			int i = GenericUtil.uInt(id);
     			if(i!=0) {
     				String js = FrameworkCache.getComponentJs(scd, i);	
-    				if(js!=null)totalJs.append("\n").append(js);
+    				if(js!=null) {
+    					totalJs.append("\n").append(js);
+    					if(FrameworkSetting.debug)totalJs.append("\nconsole.log('Custom Component[").append(i).append(" : ")
+    						.append(FrameworkCache.getComponentName(scd, i)).append(".js] loaded');");
+    				} else
+    					if(FrameworkSetting.debug)totalJs.append("\nconsole.log('Custom Component[").append(i).append(" : ")
+    						.append(FrameworkCache.getComponentName(scd, i)).append(".js] is empty');");
     			}
     		}
     		response.setContentType("text/javascript; charset=UTF-8");
         	if(totalJs.length()>0){
         		response.getWriter().write(totalJs.toString());
         	} else {
-        		
+        		response.getWriter().write("/* no content */");
         	}
     	}
 

@@ -685,7 +685,8 @@ public class PrimeReact16 implements ViewAdapter {
 							: fr.getForm().get_renderTemplate()
 									.getCode());
 		} else if(true || fr.getForm().getObjectType()==2)
-			s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
+			//s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
+			s.append("\nreturn _(bodyForm, {cfg:cfgForm, parentCt:parentCt, callAttributes:xprops});");
 		
 
 		return s;
@@ -1008,9 +1009,9 @@ public class PrimeReact16 implements ViewAdapter {
 				"ajaxPostForm",
 				f.getObjectType() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
 				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+(f.getObjectType() == 11 ? FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId()):"")+"&"};
-		s.append("{\nconstructor(props, context){\nsuper(props, context);\nprops.parentCt.form=this;this.url='").append(postFormStr[f.getObjectType()])
+		s.append("{\nconstructor(props, context){\nsuper(props, context);\nif(props.parentCt)props.parentCt.form=this;\nthis.url='").append(postFormStr[f.getObjectType()])
 			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
-			.append(";\nif(props.setCmp)props.setCmp(this);this.egrids={};this.state=(!props.values && iwb.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
+			.append(";\nthis.egrids={};\nthis.state=(!props.values && iwb.states.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
 		
 		boolean b = false;
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlType()>0 && fc.getFormCell().getControlType()<100) {
@@ -1094,7 +1095,7 @@ public class PrimeReact16 implements ViewAdapter {
 		s.append("\nonDateChange(dsc, dttm){var self=this;return function(o){var values=self.state.values;var v=o && o._d;values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);self.setState({values:values});}}");//this.cfg={...}
 		s.append("\nonNumberChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.value;values[dsc]=v;self.setState({values:values});}}");//this.cfg={...}
 		s.append("\ncomponentDidMount(){var self=this, q=this.triggerz4ComboRemotes,values=this.state.values;for(var dsc in q)if(values[dsc])q[dsc].map(function(zzz){var nv=zzz.f(values[dsc],null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{}});}");
-		s.append("\ncomponentWillUnmount(){iwb.forms['").append(formResult.getUniqueId()).append("']=Object.assign({},this.state);");
+		s.append("\ncomponentWillUnmount(){iwb.states.forms['").append(formResult.getUniqueId()).append("']=Object.assign({},this.state);");
 */
 //		if (liveSyncRecord)formResult.getRequestParams().put(".t", formResult.getUniqueId());
 		s.append("}");
@@ -1317,7 +1318,7 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		if(pr.getPageObjectList().get(0) instanceof W5CardResult){
 			W5CardResult gr = (W5CardResult)pr.getPageObjectList().get(0);
-			buf.append("return iwb.ui.buildPanel({t:_page_tab_id, card:").append(gr.getCard().getDsc());
+			buf.append("return _(XPanel,{t:_page_tab_id, card:").append(gr.getCard().getDsc());
 			if(gr.getCard().get_crudTable()!=null){
 				W5Table t = gr.getCard().get_crudTable();
 				buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
@@ -1327,7 +1328,7 @@ public class PrimeReact16 implements ViewAdapter {
 		}
 		if(!(pr.getPageObjectList().get(0) instanceof W5GridResult))return buf;
 		W5GridResult gr = (W5GridResult)pr.getPageObjectList().get(0);
-		buf.append("return iwb.ui.buildPanel({t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
+		buf.append("return _(XPanel,{t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");
@@ -1950,8 +1951,11 @@ public class PrimeReact16 implements ViewAdapter {
 			if(fc.getNotNullFlag()!=0)buf.append("',required:true");else buf.append("'");
 			if(fc.getControlType()==3)
 				buf.append(",mode:'currency', currency:'USD'");
-			else
+			else {
 				buf.append(",mode:'decimal'");
+				if(fc.getLookupQueryId()==1)//spinner
+					buf.append(",showButtons:!0");
+			}
 			break;//int
 		case	5:buf.append("$:InputSwitch");break;
 		case	100:buf.append("$:Button,color:'primary',onClick:(ax){").append(fc.getDefaultValue()).append("},children:[");
@@ -2105,7 +2109,7 @@ public class PrimeReact16 implements ViewAdapter {
 				buf.append(",onChange:this.").append(fc.getParentFormCellId()==1?"onCheckboxGroupChange":"onLovComboChange").append("('").append(fc.getDsc()).append("')");
 				break;
 			case	3:	case	4:
-				buf.append(",onValueChange:this.onNumberChange('").append(fc.getDsc()).append("')");
+				buf.append(",onChange:this.onChange('").append(fc.getDsc()).append("')");
 				break;
 			case	2:	case	18://case	22:
 				buf.append(",onChange:this.onDateChange('").append(fc.getDsc()).append("',").append(fc.getControlType()==18).append(")");
@@ -2386,7 +2390,6 @@ public class PrimeReact16 implements ViewAdapter {
 		W5Grid g = gridResult.getGrid();
 		W5Query q = g.get_query();
 		StringBuilder buf = new StringBuilder();
-		boolean expander = false;
 		if(dsc==null)dsc=g.getDsc();
 		
 		buf.append("var ").append(dsc).append(" = {gridId:")
@@ -3091,13 +3094,12 @@ columns:[
 						buf.append(", formatter:function(row){return row.").append(qds).append("_qw_;}");// browser renderer ise
 						qwRendererFlag = true;
 					}
-			} else if (qds.length() > 3 && qds.endsWith("_dt"))
-				buf.append(", formatter:strShortDate");// browser formatter ise
+			} else if ((qds.length() > 3 && qds.endsWith("_dt")) || (tf!=null && tf.getFieldType()==2))
+				buf.append(", formatter:fmtShortDate");// browser formatter ise
 			else if (qds.length() > 5 && qds.endsWith("_dttm")){
-				buf.append(", formatter:strDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser formatter ise
+				buf.append(", formatter:fmtDateTime").append(FrameworkCache.getAppSettingIntValue(0, "fmt_date_time_ago_flag")!=0 ?"Ago":"");// browser formatter ise
 			} else if ((qds.length() > 5
-					&& qds.endsWith("_flag")) || (qds.length() > 3
-							&& qds.startsWith("is_"))) {
+					&& qds.endsWith("_flag")) || (tf!=null && tf.getFieldType()==5)) {
 				buf.append(", formatter:disabledCheckBoxHtml");// browser formatter ise
 				boolRendererFlag = true;
 			} else if (grid.get_queryFieldMapDsc().get(qds + "_qw_") != null) {
@@ -4010,20 +4012,37 @@ columns:[
 		StringBuilder buf = new StringBuilder();
 		StringBuilder postBuf = new StringBuilder();
 		String code = null;
-		int customizationId = (Integer) pr.getScd().get(
-				"customizationId");
+		String componentIds = null;
+		int customizationId = (Integer) pr.getScd().get("customizationId");
 		String xlocale = (String) pr.getScd().get("locale");
 		if (page.getPageType() != 0) { // not html 
 			// notification Control
 			// masterRecord Control
+
 			
 			if(pr.getRequestParams()!=null) {
-				if (pr.getMasterRecordList() != null
-						&& !pr.getMasterRecordList().isEmpty())
-					buf.append("\n_mrl=")
-							.append(serializeTableHelperList(customizationId,
-									xlocale, pr.getMasterRecordList()))
-							.append(";\n");
+
+				String componentCssIds = "";
+				if(pr.getPageObjectList()!=null)for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
+					W5Component c = (W5Component)i;
+					componentIds = ""+c.getComponentId();
+					for (Object i2 : pr.getPageObjectList()) if(i2 instanceof W5Component && ((W5Component) i2).getComponentId()!=c.getComponentId()){
+						componentIds += ","+((W5Component) i2).getComponentId();
+						if(!GenericUtil.isEmpty(c.getCssCode()))componentCssIds+=","+((W5Component) i2).getComponentId();
+					}
+					break;					
+				}
+
+				if(componentCssIds.length()>0)buf.append("iwb.importCss('").append(componentCssIds.substring(1)).append("');\n");
+
+				if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
+					FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getPageId(), page.getCssCode());
+					buf.append("iwb.importCss('dyn-res/css-").append(page.getPageId()).append("');\n");
+				}
+				
+				if(componentIds!=null) {
+					buf.append("return _(XRequire,{id:'").append(componentIds).append("',component:()=>{\n");
+				}
 				// request
 				buf.append("var _request=")
 						.append(GenericUtil.fromMapToJsonString(pr
@@ -4039,19 +4058,11 @@ columns:[
 				
 				buf.append(serializeLookUp(pr));
 				
-				if(!GenericUtil.isEmpty(pr.getPage().getCssCode()) && pr.getPage().getCssCode().trim().length()>3){
-					buf.append("iwb.addCssString(\"")
-					.append(GenericUtil.stringToJS2(pr.getPage().getCssCode().trim())).append("\",").append(pr.getPageId()).append(");\n");
-				}
+
 			}
 			
 			if(pr.getPageObjectList()!=null) { // has detail list
-				for (Object i : pr.getPageObjectList()) if(i instanceof W5Component){
-					W5Component c = (W5Component)i;
-					buf.append("\nvar ").append(c.getDsc()).append("= React.lazy(()=>iwb.import('comp/").append(c.getComponentId()).append(".js?.x='));\n");
-					if(!GenericUtil.isEmpty(c.getCssCode()))buf.append("\n iwb.addCss('comp/").append(c.getComponentId()).append(".css?.x=',").append(c.getComponentId()).append(");\n");
-					
-				}
+
 
 				int customObjectCount = 1, tabOrder = 1;
 				for (Object i : pr.getPageObjectList()) {
@@ -4177,11 +4188,7 @@ columns:[
 					buf.append("\n");
 				}
 			}
-			
-			if (replacePostJsCode) {
-
-			} else
-				code = page.getCode();
+			code = page.getCode();
 		} else {//html
 			StringBuilder buf2 = new StringBuilder();
 			buf2.append("var _webPageId='").append(GenericUtil.getNextId("wpi"))
@@ -4264,25 +4271,7 @@ columns:[
 					.append("\n");
 			// buf3.append("function getLocMsg(key){if(key==null)return '';var val=_localeMsg[key];return val || key;}\n");
 //			buf3.append("var _CompanyLogoFileId=1;\n");
-			code = page.getCode().replace("${promis}", buf2.toString())
-					.replace("${localemsg}", buf3.toString());
-			if (page.getCode().contains("${promis-css}")) {
-				StringBuilder buf4 = new StringBuilder();
-
-				if(!GenericUtil.isEmpty(page.getCssCode()) && page.getCssCode().trim().length()>3){
-					buf4.append(page.getCssCode()).append("\n");
-				}
-				/*W5LookUp c = FrameworkCache.getLookUp(pr.getScd(), 665);
-				if(c!=null)for (W5LookUpDetay d : c.get_detayList()) {
-					buf4.append(".bgColor")
-							.append(d.getVal().replace("#", ""))
-							.append("{background-color:")
-							.append(d.getVal()).append(";}\n");
-				}*/
-				FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getPageId(), buf4.toString());
-				code = code.replace("${promis-css}", " <link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/css-"+page.getPageId()+".css?.x="+page.getVersionNo()+"\" />");
-
-			}
+			code = page.getCode();
 			
 			if(page.getCode().contains("${components}")) {
 				StringBuilder bufc = new StringBuilder();
@@ -4293,7 +4282,7 @@ columns:[
 					if(bx)bufc.append(",").append(c.getComponentId());
 					else {
 						bx = true;
-						bufc.append("<script src=\"comp/").append(c.getComponentId());
+						bufc.append("<script id=\"all-components-script\" type=\"text/javascript\" src=\"comp/").append(c.getComponentId());
 					}
 					//if(!GenericUtil.isEmpty(c.getCssCode()))bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId()).append(".css?.x=").append(c.getDsc()).append("\"/>\n");
 					
@@ -4308,29 +4297,28 @@ columns:[
 					if(bx)bufc.append(",").append(c.getComponentId());
 					else {
 						bx = true;
-						bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId());
+						bufc.append("<link id=\"all-components-style\" rel=\"stylesheet\" type=\"text/css\" href=\"comp/").append(c.getComponentId());
 					}
 					
 					
 				}
-				if(bx)bufc.append(".css?.x=123").append("\"/>\n");
+				if(bx)bufc.append(".css?.x=123\"/>\n");
+				
+				if(!GenericUtil.isEmpty(page.getCssCode()) && page.getCssCode().length()>3){
+					FrameworkCache.addPageResource(pr.getScd(), "css-"+page.getPageId(), page.getCssCode());
+					bufc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"dyn-res/css-"+page.getPageId()+".css?.x="+page.getVersionNo()+"\" />\n");
+				}
+				if(buf2.length()>1) {
+					bufc.append("<script type=\"text/javascript\">\n").append(buf2).append("\n</script>\n");
+				}
+				
 				code = code.replace("${components}", bufc.toString());
 			}
 			
 		}
-		/*
-		 * if(templateResult.getTemplateId()==2){ // ana sayfa Map<String,
-		 * String> m = new HashMap<String, String>(); int customizationId =
-		 * PromisUtil.uInt(templateResult.getScd().get("customizationId"));
-		 * for(String key:PromisCache.publishAppSettings) m.put(key,
-		 * PromisCache.getAppSettingStringValue(customizationId, key));
-		 * buf.append
-		 * ("var appSetting =").append(PromisUtil.fromMapToJsonString(m));
-		 * 
-		 * }
-		 */
+
 		if(!GenericUtil.isEmpty(code))
-			buf.append("\n").append(code.startsWith("!") ? code.substring(1) : code);
+			buf.append("\n").append(code);
 
 		if(!GenericUtil.isEmpty(pr.getPageObjectList()))switch(pr.getPage().getPageType()){
 		case	2:case	4://page, pop up
@@ -4340,6 +4328,9 @@ columns:[
 			buf.append("\n").append(renderDashboardObject(pr));
 			break;
 			
+		}
+		if(componentIds!=null) {//dynamic loading
+			buf.append("\n}});");
 		}
 		
 		return page.getLocaleMsgFlag() != 0 ? GenericUtil.filterExt(

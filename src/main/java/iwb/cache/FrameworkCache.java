@@ -665,6 +665,16 @@ public class FrameworkCache {
 		if(css==null)return "";
 		return css.getCode()==null ? "":css.getCode();
 	}
+	
+
+	public static String getComponentName(Object o, int componentId){
+		String p = getProjectId(o,"3351."+componentId);
+		Map<Integer, W5Component> m = wComponents.get(p);
+		if(m==null)return "";
+		W5Component c = m.get(componentId);
+		if(c==null)return "";
+		return c.getDsc();
+	}
 /*
 	private static RedissonClient redissonClient = null;
 	

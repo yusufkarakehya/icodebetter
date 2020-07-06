@@ -4074,12 +4074,7 @@ columns:[
 			// masterRecord Control
 			
 			if(pr.getRequestParams()!=null) {
-				if (pr.getMasterRecordList() != null
-						&& !pr.getMasterRecordList().isEmpty())
-					buf.append("\n_mrl=")
-							.append(serializeTableHelperList(customizationId,
-									xlocale, pr.getMasterRecordList()))
-							.append(";\n");
+
 				// request
 				buf.append("var _request=")
 						.append(GenericUtil.fromMapToJsonString(pr

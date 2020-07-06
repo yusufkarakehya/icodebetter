@@ -728,6 +728,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 							gr.getGridId()));
 			if(jsx)for(W5GridColumn c:grid.get_gridColumnList())if(c.getRenderer()!=null && c.getRenderer().contains("<") && c.getRenderer().contains(">")) try{//JSX
 				c.setRenderer(NashornUtil.babelTranspileJSX(c.getRenderer()));
+				if(c.getRenderer().endsWith(";"))c.setRenderer(c.getRenderer().substring(0, c.getRenderer().length()-1));
 			}catch(Exception ee) {ee.printStackTrace();}
 			
 			grid.set_toolbarItemList(find(
