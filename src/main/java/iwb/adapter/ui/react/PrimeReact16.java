@@ -686,7 +686,7 @@ public class PrimeReact16 implements ViewAdapter {
 									.getCode());
 		} else if(true || fr.getForm().getObjectType()==2)
 			//s.append("\nreturn _(XTabForm, {body:bodyForm, cfg:cfgForm, parentCt:parentCt, callAttributes:callAttributes});");
-			s.append("\nreturn _(bodyForm, {cfg:cfgForm, parentCt:parentCt, callAttributes:xprops});");
+			s.append("\nreturn _(bodyForm, props);");
 		
 
 		return s;
@@ -1009,9 +1009,11 @@ public class PrimeReact16 implements ViewAdapter {
 				"ajaxPostForm",
 				f.getObjectType() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
 				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+(f.getObjectType() == 11 ? FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId()):"")+"&"};
-		s.append("{\nconstructor(props, context){\nsuper(props, context);\nif(props.parentCt)props.parentCt.form=this;\nthis.url='").append(postFormStr[f.getObjectType()])
-			.append("';this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
-			.append(";\nthis.egrids={};\nthis.state=(!props.values && iwb.states.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
+		s.append("{\nconstructor(props, context){\n super(props, context);\n if(props.register)props.register('forms/").append(formResult.getFormId())
+			.append("', this);");
+		if(f.getObjectType()>1)s.append("\n this.url='").append(postFormStr[f.getObjectType()]).append("'");
+		s.append(";\n this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
+			.append(";\n this.egrids={};\n this.state=(!props.values && iwb.states.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
 		
 		boolean b = false;
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlType()>0 && fc.getFormCell().getControlType()<100) {
@@ -1041,7 +1043,7 @@ public class PrimeReact16 implements ViewAdapter {
 		//if(!GenericUtil.isEmpty(formResult.getForm().get_conversionList()))s.append(",_cnvStr:!0");
 		//if(!GenericUtil.isEmpty(formResult.getForm().get_formSmsMailList()))s.append(",_smsStr:!0");
 		
-		s.append("},\noptions:{");
+		s.append("},\n options:{");
 		b = false;
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (!GenericUtil.isEmpty(fc.getValue()) && fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlType()==10
 				&& fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
@@ -1071,7 +1073,7 @@ public class PrimeReact16 implements ViewAdapter {
 			
 			
 		}
-		s.append("\nthis._id='").append(formResult.getUniqueId()).append("';this.triggerz4ComboRemotes={");
+		s.append("\n this._id='").append(formResult.getUniqueId()).append("';this.triggerz4ComboRemotes={");
 		b = false;
 		for(String k:pcr.keySet()){
 			if(b)s.append(",");else b=true;
@@ -1084,35 +1086,23 @@ public class PrimeReact16 implements ViewAdapter {
 			s.append("]");
 		} 
 		s.append("}");
-		
-	/*	s.append("\nthis.onChange=this.onChange.bind(this);this.onComboChange=this.onComboChange.bind(this);this.onLovComboChange=this.onLovComboChange.bind(this);this.onNumberChange=this.onNumberChange.bind(this);this.submit=this.submit.bind(this);this.toggleTab=this.toggleTab.bind(this);this.getValues=this.getValues.bind(this);}");
-		s.append("\ntoggleTab(tab){if(this.state.activeTab!==tab)this.setState({activeTab:tab});}");
-		s.append("\ngetValues(){return Object.assign({}, this.state.values);}");//this.cfg={...}
-		s.append("\nsubmit(cfg){var p = Object.assign({}, this.state.values);if(this.componentWillPost){var r = this.componentWillPost(p, cfg||{});if(r===false)return false;p = Object.assign(p, r);}iwb.request({url:this.url+'?'+iwb.JSON2URI(this.params)+'_renderer=react16&.r='+Math.random(), params:p, self:this, errorCallback:(json)=>{var errors={};if(json.errorType)switch(json.errorType){case	'validation':toastr.error('Validation Errors');if(json.errors && json.errors.length)json.errors.map(function(o){errors[o.id]=o.msg;});if(json.error)iwb.showModal({title:'ERROR',footer:false, color:'danger', size:'sm', body:json.error});break;default:alert(json.errorType);} else alert(json);this.setState({errors:errors});return false;}, successCallback:(json, xcfg)=>{if(cfg.callback)cfg.callback(json,xcfg);}});}");//this.cfg={...}
-		s.append("\nonChange(e){var values=this.state.values;if(e.target){var o=e.target;values[o.name]=o.type=='checkbox'?o.checked:o.value;this.setState({values:values});}}");//this.cfg={...}
-		s.append("\nonComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.id;values[dsc]=v;var q=self.triggerz4ComboRemotes;if(q[dsc])q[dsc].map(function(zzz){var nv=zzz.f(v,null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{var options=self.state.options;options[zzz.n]=[];self.setState({options:options});}});self.setState({values:values});}}");//this.cfg={...}
-		s.append("\nonLovComboChange(dsc){var self=this;return function(o){var values=self.state.values;var v=[];if(o)o.map(function(q){v.push(q.id)});values[dsc]=v.join(',');self.setState({values:values});}}");//this.cfg={...}
-		s.append("\nonDateChange(dsc, dttm){var self=this;return function(o){var values=self.state.values;var v=o && o._d;values[dsc]=dttm ? fmtDateTime(v):fmtShortDate(v);self.setState({values:values});}}");//this.cfg={...}
-		s.append("\nonNumberChange(dsc){var self=this;return function(o){var values=self.state.values;var v=o && o.value;values[dsc]=v;self.setState({values:values});}}");//this.cfg={...}
-		s.append("\ncomponentDidMount(){var self=this, q=this.triggerz4ComboRemotes,values=this.state.values;for(var dsc in q)if(values[dsc])q[dsc].map(function(zzz){var nv=zzz.f(values[dsc],null,values);if(nv)iwb.request({url:'ajaxQueryData?'+iwb.JSON2URI(nv)+'.r='+Math.random(), successCallback:function(r){var options=self.state.options;options[zzz.n]=r.data;self.setState({options:options});}});else{}});}");
-		s.append("\ncomponentWillUnmount(){iwb.states.forms['").append(formResult.getUniqueId()).append("']=Object.assign({},this.state);");
-*/
+
 //		if (liveSyncRecord)formResult.getRequestParams().put(".t", formResult.getUniqueId());
-		s.append("}");
-		s.append("\n render(){\nvar mf=this, values=this.state.values, options=this.state.options, errors=this.state.errors, viewMode=this.props.viewMode;\n");
+		s.append("\n}");
+		s.append("\nrender(){\n var mf=this, values=this.state.values, options=this.state.options, errors=this.state.errors, viewMode=this.props.viewMode;");
 
 		
 		for (W5FormCellHelper fc : formResult.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0) {
 				if (fc.getFormCell().getControlType() != 102) {// label'dan farkli ise. label direk render edilirken koyuluyor
-					s.append("var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell(customizationId, xlocale,fc, formResult)).append(";\n");
+					s.append("\n var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell(customizationId, xlocale,fc, formResult)).append(";");
 				} else {
 					fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
 							fc.getFormCell().getLocaleMsgKey()));
 				}
 			}
 
-		s.append("\nvar __action__=").append(formResult.getAction()).append("\n");
+		s.append("\n var __action__=").append(formResult.getAction()).append(";\n");
 
 		// 24 nolu form form edit form olduğu için onu çevirmesin.
 		String postCode = (formResult.getForm().get_renderTemplate() != null
@@ -1141,7 +1131,7 @@ public class PrimeReact16 implements ViewAdapter {
 			s.append(renderSearchFormModuleList(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
-					"mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
+					"\n mf=_(Form, {id:'"+formResult.getUniqueId()+"'},")).append(");\n");
 		} else switch (formResult.getForm().getRenderType()) {
 		case 1:// fieldset
 		case	4://wizard
@@ -1158,11 +1148,11 @@ public class PrimeReact16 implements ViewAdapter {
 			s.append(renderFormModuleListTop(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
-					"mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
+					"\n mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
 		}
 
 
-		s.append("\nreturn mf}}");
+		s.append("\n return mf;\n}}");
 
 		return s;
 	}
@@ -1563,7 +1553,7 @@ public class PrimeReact16 implements ViewAdapter {
 				l.add(m);
 			}
 		StringBuilder buf = new StringBuilder();
-		buf.append("mf=_('span',null");
+		buf.append("\n mf=_('span',null");
 
 		int defaultWidth = -1;
 		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
@@ -1616,19 +1606,19 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		String dsc = fc.getFormCell().getDsc();
 		if(fc.getFormCell().getControlType() == 5){//checkbox
-			buf.append(",\n_").append(dsc).append(" && _(FormGroup, {style:{marginBottom:'0.3rem', display: _").append(dsc).append(".hidden?'none':''}}, _(Label, {style:{marginRight:'1rem'}, className:'inputLabel', htmlFor:\"")
+			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, _(Label, {style:{marginRight:'1rem', marginTop:0}, className:'inputLabel', htmlFor:\"")
 			.append(dsc).append("\"},_").append(dsc).append(".label), _(Label,{ className: 'switch switch-3d switch-'+(viewMode?'secondary':'primary') }, _(_").append(dsc)
-			.append(".$||Input,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
+			.append(".$||InputText,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
 		} else {
 			if (fc.getFormCell().getControlType() == 102) {// displayField4info
-				buf.append("\n,_('div', {style:{padding:'0.45rem .85rem', borderRadius:30}, className:'alert alert-").append(labelMap[fc.getFormCell().getLookupQueryId()]).append("'}, _('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(fc.getValue())).append("')");
+				buf.append(",\n  _('div', {style:{padding:'0.45rem .85rem', borderRadius:30}, className:'alert alert-").append(labelMap[fc.getFormCell().getLookupQueryId()]).append("'}, _('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(fc.getValue())).append("')");
 			} else if (fc.getFormCell().getControlType() == 100) {// button
-				buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
+				buf.append(",\n  _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 			} else {
-				buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
+				buf.append(",\n  _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
 				buf.append(", \" \", _").append(dsc).append(".hint && _(\"span\",{className:\"xlabel-hint\", title:_").append(dsc).append(".hint},_(\"i\",{className:\"icon-question\"}))");
 				if(FrameworkSetting.reactLabelRequired && /*fc.getFormCell().getNotNullFlag()!=0 && */fc.getFormCell().getNrdType()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _").append(dsc).append(".required && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
-				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||Input,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
+				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||InputText,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
 		return buf;
@@ -1653,7 +1643,7 @@ public class PrimeReact16 implements ViewAdapter {
 		if (lc == 0) {// hersey duz
 
 
-			buf.append("_('div',{className:'p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
+			buf.append("_('div',{className:'x-forms p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			for (int i = 0; i < formCells.size(); i++) {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlType()==0)
@@ -1676,9 +1666,9 @@ public class PrimeReact16 implements ViewAdapter {
 					buf.append(renderFormCellWithLabelTop(fc));
 				}
 			}
-			buf.append("))");
+			buf.append("\n ))");
 		} else {
-			buf.append("_('div',{className:'p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
+			buf.append("_('div',{className:'x-forms p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			StringBuilder columnBuf = new StringBuilder();
 			int order=0;
 			for (int i = 0; i < formCells.size(); i++) {
@@ -1698,7 +1688,7 @@ public class PrimeReact16 implements ViewAdapter {
 						&& formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) { // yanyana koymak icin. 
 					columnBuf.append(", _('div',{className:'p-grid'}");
 					
-					columnBuf.append(",_('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")"); //").append(fc.getFormCell().getControlWidth()>200 ? 12:xs).append("
+					columnBuf.append(", _('div',{className:'p-col-12 p-md-").append(Math.min(12, (fc.getFormCell().getControlWidth()/100))).append("'}").append(renderFormCellWithLabelTop(fc)).append(")"); //").append(fc.getFormCell().getControlWidth()>200 ? 12:xs).append("
 					while (i < formCells.size() - 1 && formCells.get(i + 1).getFormCell().getControlType() != 0 && formCells.get(i + 1).getFormCell().getTabOrder() == fc.getFormCell().getTabOrder()) {
 						i++;
 						fc = formCells.get(i);
@@ -1850,7 +1840,7 @@ public class PrimeReact16 implements ViewAdapter {
 			String dsc= fc.getFormCell().getDsc();
 			if(fc.getFormCell().getControlType() == 5){
 				buf.append(",\n_").append(dsc).append(" && _(FormGroup, {style:{marginBottom:'0.3rem', display: _").append(dsc).append(".hidden?'none':''}}, _(Label,{ className: 'switch switch-3d switch-primary' }, _(_").append(dsc)
-				.append(".$||Input,_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'},htmlFor:\"")
+				.append(".$||InputText,_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })), _(Label, {style:{marginLeft:'1rem'},htmlFor:\"")
 				.append(dsc).append("\"},_").append(dsc).append(".label))");
 			} else {
 				if (fc.getFormCell().getControlType() == 102) {// displayField4info
@@ -1858,7 +1848,7 @@ public class PrimeReact16 implements ViewAdapter {
 				} else if (fc.getFormCell().getControlType() == 100) {// button
 					buf.append("\n, _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
 				} else {
-					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||Input,_").append(dsc).append("))");
+					buf.append("\n, _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:null, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label), _(_").append(dsc).append(".$||InputText,_").append(dsc).append("))");
 				}
 			}
 		}
@@ -1903,7 +1893,7 @@ public class PrimeReact16 implements ViewAdapter {
 		}
 		if(cellResult.getFormCell().getControlType()==2 && cellResult.getFormCell().getParentFormCellId()!=0 && cellResult.getFormCell().getParentFormCellId()!=cellResult.getFormCell().getFormCellId()) {
 			for(W5FormCellHelper fcr:formResult.getFormCellResults())if(fcr.getFormCell().getFormCellId()==cellResult.getFormCell().getParentFormCellId()) {
-				buf.append(",isValidDate:(current)=> {return values.").append(fcr.getFormCell().getDsc()).append(" ? current.isSameOrAfter(moment(values.").append(fcr.getFormCell().getDsc()).append(",iwb.dateFormat)):true}");
+				buf.append(",minDate:values.").append(fcr.getFormCell().getDsc()).append(" ? moment(values.").append(fcr.getFormCell().getDsc()).append(",'").append(dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("').toDate():null");
 			}
 		}
 		
@@ -1942,8 +1932,8 @@ public class PrimeReact16 implements ViewAdapter {
 		case	1:buf.append("$:InputText");
 			break;//string
 		case	42:buf.append("$:Password");break;
-		case	2:buf.append("$:Calendar, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:false, closeOnSelect:true");break; //TODO:date
-		case	18:buf.append("$:Calendar, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:true,hourFormat:24");break; //TODO:datetime
+		case	2:buf.append("$:Calendar, showIcon:!0, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:false, closeOnSelect:true");break; //TODO:date
+		case	18:buf.append("$:Calendar, showIcon:!0, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:true,hourFormat:24");break; //TODO:datetime
 		case	22:buf.append("$:Calendar, timeOnly:true, showTime:true, hourFormat:24");break; //TODO:time
 		case	3://double
 		case	4://integer
@@ -1975,9 +1965,9 @@ public class PrimeReact16 implements ViewAdapter {
 		case	15://lovcombo query
 		case	59://superbox lovcombo query
 			if(fc.getControlType()==8 ||fc.getControlType()==58 || fc.getControlType()==15 ||fc.getControlType()==59)
-				buf.append("$:MultiSelect");
+				buf.append("$:").append(formResult!=null && fc.getParentFormCellId()==1?"CheckboxGroup, multi:!0":"MultiSelect");
 			else
-				buf.append("$:Dropdown");
+				buf.append("$:").append(formResult!=null && fc.getParentFormCellId()==1?"CheckboxGroup":"Dropdown");
 			
 			buf.append(", placeholder: getLocMsg('select_placeholder'), optionValue:'id',optionLabel:'dsc',options:[");//static combo
 			if ((fc.getControlType()==6 || fc.getControlType()==8 ||fc.getControlType()==58) && cellResult.getLookupListValues() != null) {
@@ -2031,8 +2021,8 @@ public class PrimeReact16 implements ViewAdapter {
 		
 		case	9://combo query remote
 		case	16://lovcombo query remote
-			buf.append("$:Select, placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],optionValue:'id', optionLabel:'dsc',clearable:").append(fc.getNotNullFlag()==0);
-			if(fc.getControlType()==16)buf.append(",multi:true");
+			buf.append("$:").append(fc.getControlType()==16?"MultiSelect":"Dropdown")
+				.append(", placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],optionValue:'id', optionLabel:'dsc',clearable:").append(fc.getNotNullFlag()==0);
 			break;
 		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
 
@@ -2040,10 +2030,10 @@ public class PrimeReact16 implements ViewAdapter {
 					"advanced_select_max_rows");
 			if (maxRows == 0)
 				maxRows = 100;
-			buf.append("$:AutoComplete, cacheOptions:!0,/*isLoading:!0, */defaultOptions:options.").append(fc.getDsc()).append("||[],valueKey:'id', labelKey:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
-				.append("', loadOptions:(input, callback)=>{var xself=this;if(!input)callback();else iwb.request({url:'ajaxQueryData?_renderer=react16&_qid=").append(fc.getLookupQueryId()).append("&limit=").append(maxRows);
+			buf.append("$:AutoComplete, dropdown:!0, dropdownMode:'current', suggestions:options.").append(fc.getDsc()).append("||[],valueKey:'id', field:'dsc', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
+				.append("', completeMethod:(event)=>{var xself=this;if(!event.query)return;else iwb.ajax.request('query/").append(fc.getLookupQueryId()).append("?limit=").append(maxRows);
 			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
-			buf.append("', params:{xdsc:input}, successCallback:function(result, cfg){var options=xself.state.options||{};options.").append(fc.getDsc()).append("=result.data;xself.setState({options});callback(null, {options: result.data,complete: false});}});},clearable:").append(fc.getNotNullFlag()==0);
+			buf.append("', {xdsc:event.query}, (j)=>{var options=xself.state.options||{};options.").append(fc.getDsc()).append("=j.data;xself.setState({options});});},clearable:").append(fc.getNotNullFlag()==0);
 		break; // advanced select
 		case	23://treecombo(local)
 		case	26://lovtreecombo(local) TODO
@@ -2093,6 +2083,9 @@ public class PrimeReact16 implements ViewAdapter {
 			case	10:
 				buf.append(", value: values.").append(fc.getDsc()).append(" ? iwb.findAsyncValue(values.").append(fc.getDsc()).append(",options.").append(fc.getDsc()).append("):''");
 				break;
+			case	2:
+				buf.append(",value:values.").append(fc.getDsc()).append(" ? moment(values.").append(fc.getDsc()).append(",'").append(dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("').toDate():''");
+				break;
 			default:buf.append(",value:values.").append(fc.getDsc()).append("||''");
 			}
 		//	if(true)buf.append(",on:{onChange:function(newv, oldv){this.validate();}}");
@@ -2103,7 +2096,7 @@ public class PrimeReact16 implements ViewAdapter {
 				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
 				break;
 			case 10:
-				buf.append(",onChange:this.onComboChange('").append(fc.getDsc()).append("')");
+				buf.append(",onChange:this.onAutocompleteChange('").append(fc.getDsc()).append("')");
 				break;
 			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
 				buf.append(",onChange:this.").append(fc.getParentFormCellId()==1?"onCheckboxGroupChange":"onLovComboChange").append("('").append(fc.getDsc()).append("')");
@@ -2392,29 +2385,44 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		if(dsc==null)dsc=g.getDsc();
 		
-		buf.append("var ").append(dsc).append(" = {gridId:")
-				.append(g.getGridId()).append(",queryId:").append(g.getQueryId()).append(",setCmp:(o)=> {")
-				.append(dsc).append(".cmp = o;}");
+		buf.append("var ").append(dsc).append(" = { gridId:")
+				.append(g.getGridId()).append(", queryId:").append(g.getQueryId());
+		String uniqueId = GenericUtil.getNextId("ng");
+		buf.append("\n, name:'").append(LocaleMsgCache.get2(scd,g.getLocaleMsgKey())).append("', id:'")
+			.append(uniqueId).append("', gridName:'").append(g.getDsc()).append("'");
+
+		
+		buf.append("\n, _url:'ajaxQueryData?_renderer=preact16&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
+				.append(g.getQueryId()).append("&_gid=")
+				.append(g.getGridId());
+
+		if (gridResult.isViewLogMode() || g.getDefaultPageRecordNumber() != 0)
+			buf.append("&firstLimit=").append(gridResult.isViewLogMode() ? FrameworkCache
+							.getAppSettingIntValue(scd,"log_default_record_per_page") : g
+							.getDefaultPageRecordNumber())
+					.append("',remote:{sort: true}"); //pagination: true, filter: true, sort: true, cellEdit: true
+		else
+			buf.append("'");
 		if (!gridResult.isViewLogMode() && g.getSelectionModeType()!=0){
 			if(g.getSelectionModeType()==2 || g.getSelectionModeType()==3)
-				buf.append(", multiselect:true");
+				buf.append("\n, multiselect:true");
 		}
-		buf.append(",keyField:'").append(g.get_pkQueryField().getDsc()).append("'");
+		buf.append("\n, keyField:'").append(g.get_pkQueryField().getDsc()).append("'");
 		if(g.getTreeMasterFieldId() != 0) {
 			W5QueryField treeMasterField = g.get_queryFieldMap().get(g.getTreeMasterFieldId());
 			if(treeMasterField != null) {
-				buf.append(",tree:!0, treeParentKey:'parent_id', tableTreeColumn:'").append(treeMasterField.getDsc()).append("'");
+				buf.append("\n, tree:!0, treeParentKey:'parent_id', tableTreeColumn:'").append(treeMasterField.getDsc()).append("'");
 			}
 		} else if(g.getGroupingFieldId()!=0) {
 			W5QueryField groupingField = g.get_queryFieldMap().get(g.getGroupingFieldId());
 			if(groupingField != null) {
-				buf.append(",groupColumn:'").append(groupingField.getDsc()).append("'");
-			} else buf.append(",_disableIntegratedGrouping:!0");
-		} else buf.append(",_disableIntegratedGrouping:!0");
+				buf.append("\n, groupColumn:'").append(groupingField.getDsc()).append("'");
+			} else buf.append(", _disableIntegratedGrouping:!0");
+		} else buf.append(", _disableIntegratedGrouping:!0");
 		
 		if (gridResult.getExtraOutMap() != null
 				&& !gridResult.getExtraOutMap().isEmpty()) {
-			buf.append(",\n extraOutMap:")
+			buf.append("\n, extraOutMap:")
 					.append(GenericUtil.fromMapToJsonString(gridResult
 							.getExtraOutMap()));
 		}
@@ -2422,7 +2430,7 @@ public class PrimeReact16 implements ViewAdapter {
 			
 
 		if (g.getDefaultWidth() != 0)
-			buf.append(", defaultWidth:").append(g.getDefaultWidth());
+			buf.append("\n, defaultWidth:").append(g.getDefaultWidth());
 		if (gridResult.isViewLogMode())
 			buf.append(", defaultHeight:").append(
 					FrameworkCache.getAppSettingIntValue(scd,
@@ -2433,11 +2441,19 @@ public class PrimeReact16 implements ViewAdapter {
 			if (g.getDefaultHeight() > 0)
 				buf.append(", defaultHeight:").append(g.getDefaultHeight());
 
-			buf.append(",\n gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
+			buf.append(", gridReport:").append(FrameworkCache.roleAccessControl(scd, 105));
 		}
-		buf.append(",\n displayInfo:").append(g.getDefaultPageRecordNumber()>0);
+		buf.append("\n, displayInfo:").append(g.getDefaultPageRecordNumber()>0);
+
+		if (gridResult.isViewLogMode() || g.getDefaultPageRecordNumber() != 0)
+			buf.append(", pageSize:").append(
+					gridResult.isViewLogMode() ? FrameworkCache
+							.getAppSettingIntValue(scd,
+									"log_default_record_per_page") : g
+							.getDefaultPageRecordNumber());
+		
 		if(q.get_aggQueryFields()!=null) {
-			buf.append(",\n displayAgg:[");
+			buf.append(", displayAgg:[");
 			for(W5QueryField f:q.get_aggQueryFields())
 				buf.append("{id:'").append(f.getDsc()).append("', f:(x)=> _('span',{},'")
 				.append(LocaleMsgCache.get2(scd, f.getDsc())).append(" ', _('span',{style:{borderRadius:100, background:'rgba(228, 242, 251, 0.8)', padding:'2px 5px'}},fmtDecimal(x,2,2)))},");
@@ -2446,7 +2462,7 @@ public class PrimeReact16 implements ViewAdapter {
 		}
 
 		if (!GenericUtil.isEmpty(g.get_crudFormSmsMailList())) {
-			buf.append(",\n formSmsMailList:[");
+			buf.append("\n, formSmsMailList:[");
 			boolean b = false;
 			for (W5FormSmsMail fsm : g.get_crudFormSmsMailList())
 				if (((fsm.getSmsMailType() == 0 && FrameworkSetting.sms) || (fsm
@@ -2470,48 +2486,23 @@ public class PrimeReact16 implements ViewAdapter {
 			buf.append("]");
 		}
 		if (!GenericUtil.isEmpty(g.get_crudFormConversionList())) {
-			buf.append(",\n formConversionList:[")
+			buf.append("\n, formConversionList:[")
 					.append(serializeManualConversions(scd,
 							g.get_crudFormConversionList())).append("]");
 		}
 		
-		String uniqueId = GenericUtil.getNextId("ng");
-		if(false)buf.append(",striped:true,hover:true,bordered:false,");
-		buf.append(",name:'").append(LocaleMsgCache.get2(scd,
-						g.getLocaleMsgKey())).append("',\n id:'").append(uniqueId).append("'");
+	
 
-		
-			buf.append(",\n _url:'ajaxQueryData?_renderer=react16&.t='+_page_tab_id+'&.w='+_webPageId+'&_qid=")
-					.append(g.getQueryId()).append("&_gid=")
-					.append(g.getGridId());
-
-			if (gridResult.isViewLogMode() || g.getDefaultPageRecordNumber() != 0)
-				buf.append("&firstLimit=").append(gridResult.isViewLogMode() ? FrameworkCache
-								.getAppSettingIntValue(scd,"log_default_record_per_page") : g
-								.getDefaultPageRecordNumber())
-						.append("',remote:{sort: true}"); //pagination: true, filter: true, sort: true, cellEdit: true
-			else
-				buf.append("'");
-
-			
-			
-
-		if (gridResult.isViewLogMode() || g.getDefaultPageRecordNumber() != 0)
-			buf.append(",\n pageSize:").append(
-					gridResult.isViewLogMode() ? FrameworkCache
-							.getAppSettingIntValue(scd,
-									"log_default_record_per_page") : g
-							.getDefaultPageRecordNumber());
 
 		if (gridResult.getSearchFormResult() != null) {
 			gridResult.getSearchFormResult().setUniqueId("s-"+uniqueId);
-			buf.append(",\n searchForm:class extends XForm").append(serializeGetForm(gridResult.getSearchFormResult()));
+			buf.append("\n, searchForm:class extends XForm").append(serializeGetForm(gridResult.getSearchFormResult()));
 
 		}
 		
 		if(g.getDefaultPageRecordNumber()>0 && g.get_query()!=null && g.get_query().get_queryParams()!=null){
 			for(W5QueryParam qp:g.get_query().get_queryParams())if(qp.getDsc().equals("xsearch"))
-				buf.append(",\n globalSearch:true");
+				buf.append("\n, globalSearch:true");
 		}
 		
 		if (!gridResult.isViewLogMode()) {
@@ -2528,31 +2519,31 @@ public class PrimeReact16 implements ViewAdapter {
 						buf.append(",newRecordLabel:'").append(LocaleMsgCache.get2(scd,"new_record_prefix"))
 						.append(LocaleMsgCache.get2(scd,g.get_defaultCrudForm().getLocaleMsgKey()).toUpperCase()).append("'");
 					
-					buf.append(",\n crudFormId:")
+					buf.append("\n, crudFormId:")
 							.append(g.getDefaultCrudFormId())
 							.append(", crudTableId:")
 							.append(t.getTableId())
 							.append(", crudFlags:{insert:")
 							.append(insertFlag)
-							.append(",edit:")
+							.append(", edit:")
 							.append(t.getAccessUpdateUserFields() != null
 									|| GenericUtil.accessControl(scd,
 											t.getAccessUpdateTip(),
 											t.getAccessUpdateRoles(),
 											t.getAccessUpdateUsers()))
-							.append(",remove:")
+							.append(", remove:")
 							.append(t.getAccessDeleteUserFields() != null
 									|| GenericUtil.accessControl(scd,
 											t.getAccessDeleteTip(),
 											t.getAccessDeleteRoles(),
 											t.getAccessDeleteUsers()));
 					if (g.getInsertEditModeFlag() != 0 && insertFlag)
-						buf.append(",insertEditMode:true");
+						buf.append(", insertEditMode:true");
 					if (insertFlag) {
 						if (t.getCopyTip() == 1)
-							buf.append(",xcopy:true");
+							buf.append(", xcopy:true");
 						else if (t.getCopyTip() == 2)
-							buf.append(",ximport:true");
+							buf.append(", ximport:true");
 					}
 					// if(PromisCache.getAppSettingIntValue(scd, "revision_flag")!=0
 					// && t.getRevisionFlag()!=0)buf.append(",xrevision:true");
@@ -3031,6 +3022,7 @@ columns:[
 			boolean boolRendererFlag = false;
 			if(c.getFilterFlag()!=0)buf.append(", filter:!0");
 			buf.append(", name: '").append(qds).append("'");
+			if(FrameworkSetting.debug)buf.append(",_id:").append(c.getGridColumnId());
 			if(c.getSortableFlag() != 0 && c.get_queryField().getPostProcessType() != 101){
 					buf.append(", sort:true");
 					if(c.get_queryField().getFieldType()>1){//TODO. custom after string sorting
@@ -3119,7 +3111,7 @@ columns:[
 
 	public StringBuilder serializeTreeQueryRemoteData(W5QueryResult queryResult) {
 		String children = queryResult.getRequestParams().get("_children") != null ? queryResult
-				.getRequestParams().get("_children") : "children";
+				.getRequestParams().get("_children") : "items";
 		int customizationId = (Integer) queryResult.getScd().get(
 				"customizationId");
 		String xlocale = (String) queryResult.getScd().get("locale");
@@ -3354,7 +3346,7 @@ columns:[
 
 		 */
 		String children = qr.getRequestParams().get("_children") != null ? qr
-				.getRequestParams().get("_children") : "data";
+				.getRequestParams().get("_children") : "items";
 		int customizationId = (Integer) qr.getScd().get(
 				"customizationId");
 		String xlocale = (String) qr.getScd().get("locale");
@@ -4041,7 +4033,7 @@ columns:[
 				}
 				
 				if(componentIds!=null) {
-					buf.append("return _(XRequire,{id:'").append(componentIds).append("',component:()=>{\n");
+					buf.append("return _(XRequire,{componentIds:'").append(componentIds).append("', props, component:(props)=>{\n");
 				}
 				// request
 				buf.append("var _request=")
