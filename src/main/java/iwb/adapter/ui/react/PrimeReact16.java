@@ -1606,7 +1606,7 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		String dsc = fc.getFormCell().getDsc();
 		if(fc.getFormCell().getControlType() == 5){//checkbox
-			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, ");
+			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {className:'x-form-elements x-form-element-").append(fc.getFormCell().getFormCellId()).append("',style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, ");
 			if(fc.getFormCell().getParentFormCellId()==1)buf.append("_(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("), _('div',{style:{width:'1rem'}}), ");
 			buf.append("_(Label, {style:{marginRight:'1rem', marginTop:-3}, className:'inputLabel', htmlFor:\"").append(dsc).append("\"}, _").append(dsc).append(".label)");
 			if(fc.getFormCell().getParentFormCellId()!=1)buf.append(", _(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append(")");
@@ -1615,9 +1615,9 @@ public class PrimeReact16 implements ViewAdapter {
 			if (fc.getFormCell().getControlType() == 102) {// displayField4info
 				buf.append(",\n  _('div', {style:{padding:'0.45rem .85rem', borderRadius:30}, className:'alert alert-").append(labelMap[fc.getFormCell().getLookupQueryId()]).append("'}, _('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(fc.getValue())).append("')");
 			} else if (fc.getFormCell().getControlType() == 100) {// button
-				buf.append(",\n  _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, null, _(Button,_").append(dsc).append("))");
+				buf.append(",\n  _").append(dsc).append(" && !_").append(dsc).append(".hidden && _(FormGroup, {className:'x-form-elements x-form-element-").append(fc.getFormCell().getFormCellId()).append("'}, _(Button,_").append(dsc).append("))");
 			} else {
-				buf.append(",\n  _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:(errors.").append(dsc).append(" && {className:'validation-error'}), _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
+				buf.append(",\n  _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:{className:classNames('x-form-elements','x-form-element-").append(fc.getFormCell().getFormCellId()).append("', {'validation-error':!!errors.").append(dsc).append("})}, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
 				buf.append(", \" \", _").append(dsc).append(".hint && _(\"span\",{className:\"xlabel-hint\", title:_").append(dsc).append(".hint},_(\"i\",{className:\"icon-question\"}))");
 				if(FrameworkSetting.reactLabelRequired && /*fc.getFormCell().getNotNullFlag()!=0 && */fc.getFormCell().getNrdType()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _").append(dsc).append(".required && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
 				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||InputText,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
@@ -1949,13 +1949,11 @@ public class PrimeReact16 implements ViewAdapter {
 			}
 			break;//int
 		case	5:buf.append("$:InputSwitch");break;
-		case	100:buf.append("$:Button,color:'primary',onClick:(ax){").append(fc.getDefaultValue()).append("},children:[");
+		case	100:buf.append("$:Button,color:'primary',onClick:(ax)=>{").append(fc.getExtraDefinition()).append("},children:[");
 				if(fc.getLocaleMsgKey().startsWith("icon-"))buf.append("_('i',{className:'").append(fc.getLocaleMsgKey()).append("'})]");
 				else buf.append("'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("']");
 				if(fc.getControlWidth()>0)buf.append(",width:").append(fc.getControlWidth());
-				if(!GenericUtil.isEmpty(fc.getExtraDefinition())){
-					buf.append(fc.getExtraDefinition());//button
-				}
+
 				return buf.append(serializeFormCellProperty(cellResult, formResult)).append("}");
 
 		case	6://combo static
