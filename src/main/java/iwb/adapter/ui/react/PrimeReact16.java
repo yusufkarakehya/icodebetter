@@ -1148,7 +1148,7 @@ public class PrimeReact16 implements ViewAdapter {
 			s.append(renderFormModuleListTop(customizationId, xlocale,
 					formResult.getUniqueId(),
 					formResult.getFormCellResults(),
-					"\n mf=", formResult.getRequestParams().get("_modal")!=null ? -1:formResult.getForm().getDefaultWidth())).append(";\n");
+					"\n mf=", GenericUtil.uInt(formResult.getRequestParams(),"_openIn"), formResult.getForm().getDefaultWidth())).append(";\n");
 		}
 
 
@@ -1177,12 +1177,12 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		buf.append("mf=_('span',null");
 
-		int defaultWidth = -1;
-		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
+		int defaultWidth = formResult.getForm().getDefaultWidth();
+		int openIn = GenericUtil.uInt(formResult.getRequestParams(), "_openIn");
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", openIn, formResult.getForm().getDefaultWidth()));
 		}
 		StringBuilder contentBuf = new StringBuilder();
 		int firstTab = 0;
@@ -1226,7 +1226,7 @@ public class PrimeReact16 implements ViewAdapter {
 								}
 								buf.append(",_(NavItem, null,_(NavLinkS,{className: classNames({active: ").append(firstTab==m.getFormModuleId()?"!this.state.activeTab || ":"").append("this.state.activeTab === '").append(m.getFormModuleId()).append("'}), onClick:()=> this.toggleTab('").append(m.getFormModuleId()).append("')},'").append(LocaleMsgCache.get2(formResult.getScd(), m.getLocaleMsgKey())).append("'))");
 								contentBuf.append(renderFormModuleListTop(customizationId, xlocale, formResult.getUniqueId(),
-										map.get(m.getFormModuleId()), ",_(TabPane, {tabId: '"+m.getFormModuleId()+"' }, ", defaultWidth)).append(")");
+										map.get(m.getFormModuleId()), ",_(TabPane, {tabId: '"+m.getFormModuleId()+"' }, ", openIn, defaultWidth)).append(")");
 							}
 						}
 					}
@@ -1555,12 +1555,12 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		buf.append("\n mf=_('span',null");
 
-		int defaultWidth = -1;
-		if(formResult.getRequestParams().get("_modal")==null)defaultWidth = formResult.getForm().getDefaultWidth();
+		int defaultWidth = formResult.getForm().getDefaultWidth();
+		int openIn = GenericUtil.uInt(formResult.getRequestParams(), "_openIn");
 		List<String> extendedForms = new ArrayList();
 		if (map.get(0).size() > 0) {
 			buf.append(renderFormModuleListTop(customizationId, xlocale,
-					formResult.getUniqueId(), map.get(0), ",", defaultWidth));
+					formResult.getUniqueId(), map.get(0), ",", openIn, formResult.getForm().getDefaultWidth()));
 		}
 		if (formResult.getForm().get_moduleList() != null)
 			for (W5FormModule m : formResult.getForm().get_moduleList())
@@ -1591,7 +1591,7 @@ public class PrimeReact16 implements ViewAdapter {
 								buf.append(renderFormModuleListTop(
 										customizationId, xlocale,
 										formResult.getUniqueId(),
-										map.get(m.getFormModuleId()), ",_('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),", defaultWidth));
+										map.get(m.getFormModuleId()), ",_('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),", openIn, defaultWidth));
 							}
 						}
 					}
@@ -1606,9 +1606,11 @@ public class PrimeReact16 implements ViewAdapter {
 		StringBuilder buf = new StringBuilder();
 		String dsc = fc.getFormCell().getDsc();
 		if(fc.getFormCell().getControlType() == 5){//checkbox
-			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, _(Label, {style:{marginRight:'1rem', marginTop:0}, className:'inputLabel', htmlFor:\"")
-			.append(dsc).append("\"},_").append(dsc).append(".label), _(Label,{ className: 'switch switch-3d switch-'+(viewMode?'secondary':'primary') }, _(_").append(dsc)
-			.append(".$||InputText,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("),_('span', { className: 'switch-label' }),_('span', { className: 'switch-handle' })))");
+			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, ");
+			if(fc.getFormCell().getParentFormCellId()==1)buf.append("_(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("), _('div',{style:{width:'1rem'}}), ");
+			buf.append("_(Label, {style:{marginRight:'1rem', marginTop:-3}, className:'inputLabel', htmlFor:\"").append(dsc).append("\"}, _").append(dsc).append(".label)");
+			if(fc.getFormCell().getParentFormCellId()!=1)buf.append(", _(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append(")");
+			buf.append(")");
 		} else {
 			if (fc.getFormCell().getControlType() == 102) {// displayField4info
 				buf.append(",\n  _('div', {style:{padding:'0.45rem .85rem', borderRadius:30}, className:'alert alert-").append(labelMap[fc.getFormCell().getLookupQueryId()]).append("'}, _('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(fc.getValue())).append("')");
@@ -1625,7 +1627,7 @@ public class PrimeReact16 implements ViewAdapter {
 	}
 	private StringBuilder renderFormModuleListTop(int customizationId,
 			String xlocale, String formUniqueId,
-			List<W5FormCellHelper> formCells, String xtype, int defaultWidth/*-1:modal*/) {
+			List<W5FormCellHelper> formCells, String xtype, int openIn, int defaultWidth) {
 		StringBuilder buf = new StringBuilder();
 		// if(xtype!=null)buf.append("{frame:true,xtype:'").append(xtype).append("'");
 		if(xtype!=null)buf.append(xtype);
@@ -1637,13 +1639,12 @@ public class PrimeReact16 implements ViewAdapter {
 		if(lc>2)lc=2;
 
 
-		boolean modal = defaultWidth==-1;
-		int lg = modal?12:Math.min(12, (defaultWidth/100));// Large >=992px
+		int lg = openIn!=0?12:Math.min(12, (defaultWidth/100));// Large >=992px
 		
 		if (lc == 0) {// hersey duz
 
 
-			buf.append("_('div',{className:'x-forms p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
+			buf.append("_('div',{className:'x-forms p-grid p-fluid', style:").append(openIn == 1/*modal*/ ? "{minWidth:"+defaultWidth+"}":"{}").append("}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			for (int i = 0; i < formCells.size(); i++) {
 				W5FormCellHelper fc = formCells.get(i);
 				if (fc.getFormCell().getActiveFlag() == 0 || fc.getFormCell().getControlType()==0)
@@ -1668,7 +1669,7 @@ public class PrimeReact16 implements ViewAdapter {
 			}
 			buf.append("\n ))");
 		} else {
-			buf.append("_('div',{className:'x-forms p-grid p-fluid'}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
+			buf.append("_('div',{className:'x-forms p-grid p-fluid', style:").append(openIn == 1 ? "{minWidth:"+defaultWidth+"}":"{}").append("}, _('div',{className:'p-col-12 p-md-").append(lg).append("'}");
 			StringBuilder columnBuf = new StringBuilder();
 			int order=0;
 			for (int i = 0; i < formCells.size(); i++) {
@@ -1933,8 +1934,8 @@ public class PrimeReact16 implements ViewAdapter {
 			break;//string
 		case	42:buf.append("$:Password");break;
 		case	2:buf.append("$:Calendar, showIcon:!0, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:false, closeOnSelect:true");break; //TODO:date
-		case	18:buf.append("$:Calendar, showIcon:!0, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:true,hourFormat:24");break; //TODO:datetime
-		case	22:buf.append("$:Calendar, timeOnly:true, showTime:true, hourFormat:24");break; //TODO:time
+		case	18:buf.append("$:Calendar, showIcon:!0, dateFormat:'").append(FrameworkCache.getAppSettingStringValue(customizationId, "date_format", dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0])).append("',showTime:true,hourFormat:'24'");break; //TODO:datetime
+		case	22:buf.append("$:Calendar, timeOnly:true, showTime:true, hourFormat:'24'");break; //TODO:time
 		case	3://double
 		case	4://integer
 			buf.append("$:InputNumber,style:{textAlign:'right'},className:'form-control");
@@ -2085,6 +2086,9 @@ public class PrimeReact16 implements ViewAdapter {
 				break;
 			case	2:
 				buf.append(",value:values.").append(fc.getDsc()).append(" ? moment(values.").append(fc.getDsc()).append(",'").append(dateFormatMulti[formResult!=null && formResult.getScd()!=null ? GenericUtil.uInt(formResult.getScd().get("date_format")):0]).append("').toDate():''");
+				break;
+			case	3:case	4:
+				buf.append(",value:values.").append(fc.getDsc()).append("||null");
 				break;
 			default:buf.append(",value:values.").append(fc.getDsc()).append("||''");
 			}
