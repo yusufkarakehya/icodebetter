@@ -1095,7 +1095,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 	@Override
 	public void setApplicationSettingsValues() {
 		FrameworkSetting.debug = FrameworkCache.getAppSettingIntValue(0, "debug") != 0;
-
+		FrameworkSetting.transpile = FrameworkCache.getAppSettingIntValue(0, "transpile");
 
 		FrameworkSetting.mq = FrameworkCache.getAppSettingIntValue(0, "mq_flag") != 0;
 		// FrameworkSetting.preloadWEngine =

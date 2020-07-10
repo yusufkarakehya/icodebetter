@@ -986,7 +986,7 @@ public class PreviewController implements InitializingBean {
 		response.setContentType("application/javascript");
 
 		response.getWriter().write(getViewAdapter(scd, request).serializeGrid(gridResult).toString());
-		response.getWriter().write("\nreturn "+gridResult.getGrid().getDsc());
+		response.getWriter().write("\nreturn _(XMainGrid,Object.assign("+gridResult.getGrid().getDsc()+", {aprops:props}));");
 		response.getWriter().close();
 
 	}
@@ -1658,6 +1658,7 @@ public class PreviewController implements InitializingBean {
     				} else
     					if(FrameworkSetting.debug)totalJs.append("\nconsole.log('Custom Component[").append(i).append(" : ")
     						.append(FrameworkCache.getComponentName(scd, i)).append(".js] is empty');");
+    				totalJs.append("\ntry{iwb.customComponents[").append(i).append("]=!0;}catch(e){}\n");
     			}
     		}
     		response.setContentType("text/javascript; charset=UTF-8");
