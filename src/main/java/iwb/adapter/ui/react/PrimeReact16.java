@@ -1318,7 +1318,7 @@ public class PrimeReact16 implements ViewAdapter {
 		}
 		if(!(pr.getPageObjectList().get(0) instanceof W5GridResult))return buf;
 		W5GridResult gr = (W5GridResult)pr.getPageObjectList().get(0);
-		buf.append("return _(XPanel,{t:_page_tab_id, grid:").append(gr.getGrid().getDsc());
+		buf.append("return _(XPanel,{t:_page_tab_id, grid:Object.assign(").append(gr.getGrid().getDsc()).append(",{aprops:props})");
 		if(gr.getGrid().get_crudTable()!=null){
 			W5Table t = gr.getGrid().get_crudTable();
 			buf.append(",pk:{").append(t.get_tableParamList().get(0).getDsc()).append(":'").append(t.get_tableParamList().get(0).getExpressionDsc()).append("'}");

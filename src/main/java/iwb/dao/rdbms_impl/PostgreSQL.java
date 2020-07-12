@@ -2442,7 +2442,7 @@ public class PostgreSQL extends BaseDAO {
 							if(fc.getActiveFlag()!=0) {
 								short visibleFlag = 0;
 								if(fc.getSourceType()==1) {
-									String value = formResult.getRequestParams().get(fc.getDsc());
+									String value = formResult.getRequestParams().get(fc.getDsc() + paramSuffix);
 									if(fc.getControlType()==5) {
 										visibleFlag = (short)(fcp.getLkpOperatorType() == GenericUtil.uCheckBox(value) ? 1:0);
 									} else

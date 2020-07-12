@@ -1375,6 +1375,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 					if(GenericUtil.uInt(m2.get("crud_update_flag"))!=0)ss.add(2);
 					if(GenericUtil.uInt(m2.get("crud_insert_flag"))!=0)ss.add(1);
 					if(GenericUtil.uInt(m2.get("file_attachment_flag"))!=0)ss.add(101);
+					if(GenericUtil.uInt(m2.get("add_file_attachment_flag"))!=0)ss.add(102);
 					if(GenericUtil.uInt(m2.get("make_comment_flag"))!=0)ss.add(103);					
 					//101:fileViewFlag; 103:commentMakeFlag; 105:gridReportViewFlag;108:logViewFlag;
 
