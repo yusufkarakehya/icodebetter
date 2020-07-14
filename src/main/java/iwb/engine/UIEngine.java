@@ -132,18 +132,28 @@ public class UIEngine {
 		dao.loadFormCellLookups(scd, formResult.getFormCellResults(), requestParams, null);
 		return formResult;
 	}
+	
+
+	public W5FormResult getFormResult2(Map<String, Object> scd, int formId) {
+		W5FormResult formResult = null;
+		try {
+			Map requestParams = new HashMap();
+			formResult = metadataLoader.getFormResult(scd, formId, 2, requestParams);
+			formResult.setUniqueId(GenericUtil.getNextId("fi"));
+			return formResult;
+		} catch (Exception e) {
+			throw new IWBException("framework", "Form", formId, null, "[40," + formId + "]"
+					+ (formResult != null && formResult.getForm() != null ? " " + formResult.getForm().getDsc() : ""),
+					e);
+		}
+	}
+	
 
 	public W5FormResult getFormResult(Map<String, Object> scd, int formId, int action,
 			Map<String, String> requestParams) {
 		if (
 		/* formId==0 && */ GenericUtil.uInt(requestParams.get("_tb_id")) != 0
-				&& GenericUtil.uInt(requestParams.get("_tb_pk")) != 0) { // isterse
-																			// _tb_id,tb_pk
-																			// degerleriyle
-																			// de
-																			// bir
-																			// form
-																			// acilabilir
+				&& GenericUtil.uInt(requestParams.get("_tb_pk")) != 0) { // _tb_id, and _tb_pk can also be used
 			W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(requestParams.get("_tb_id")));
 			if (t == null) {
 				throw new IWBException("framework", "Table", GenericUtil.uInt(requestParams.get("_tb_id")), null,
@@ -170,26 +180,12 @@ public class UIEngine {
 			formResult.setUniqueId(GenericUtil.getNextId("fi"));
 			if(GenericUtil.uInt(requestParams, "_viewMode")!=0)
 				formResult.setViewMode(true);
-			/*
-			 * if(requestParams.containsKey("_log5_log_id")){
-			 * if(!FrameworkCache.wTemplates.containsKey(scd.get(
-			 * "customizationId")))FrameworkCache.wTemplates.put((Integer)scd.
-			 * get("customizationId"),new HashMap());
-			 * FrameworkCache.wTemplates.get((Integer)scd.get("customizationId")
-			 * ).put(668, (W5Template)dao.find(
-			 * "from W5Template t where t.templateId=668 AND t.customizationId=?"
-			 * , scd.get("customizationId")).get(0)); }
-			 */
-			// boolean dev = scd.get("roleId")!=null &&
-			// (Integer)scd.get("roleId")==0 &&
-			// GenericUtil.uInt(requestParams,"_dev")!=0;
+
 			String projectId = FrameworkCache.getProjectId(scd, "40." + formId);
 			W5Table t = null;
 			switch (formResult.getForm().getObjectType()) {
 			case 2: // table
 				t = FrameworkCache.getTable(projectId, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
-				boolean accessControlSelfFlag = true; // kendisi VEYA
-														// kendisi+master
 				switch (t.getAccessViewTip()) {
 				case 1:
 					if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
@@ -199,8 +195,7 @@ public class UIEngine {
 					}
 				}
 
-				if (accessControlSelfFlag)
-					acEngine.accessControl4FormTable(formResult, null);
+				acEngine.accessControl4FormTable(formResult, null);
 				if (formResult.getForm().get_moduleList() != null) {
 					for (W5FormModule m : formResult.getForm().get_moduleList()) if(m.getModuleViewType() == 0 || m.getModuleViewType() == action)
 						switch(m.getModuleType()){
@@ -1172,7 +1167,8 @@ public class UIEngine {
 		return rc;
 	}
 	
-	public M5ListResult getMListResult(Map<String, Object> scd, int listId, Map<String, String> parameterMap) {
-		return metadataLoader.getMListResult(scd, listId, parameterMap, false);
+	public M5ListResult getMListResult(Map<String, Object> scd, int listId, Map<String, String> requestParams) {
+		return metadataLoader.getMListResult(scd, listId, requestParams, false);
 	}
+
 }

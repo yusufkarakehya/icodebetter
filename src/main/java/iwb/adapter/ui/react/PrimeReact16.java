@@ -4864,5 +4864,8 @@ columns:[
 		return s;
 	}
 	
-
+	public	StringBuilder serializeShowForm2(W5FormResult formResult) {
+		StringBuilder s = new StringBuilder();
+		return s;
+	}
 }

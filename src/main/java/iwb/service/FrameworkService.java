@@ -148,13 +148,12 @@ public class FrameworkService {
 			Map<String, String> requestParams) {
 		return uiEngine.getFormResult(scd, formId, action, requestParams);
 	}
+	
 
-	@SuppressWarnings({ "unused", "unchecked" })
-	private List<W5QueuedActionHelper> postForm4Table(W5FormResult formResult, String paramSuffix,
-			Set<String> checkedParentRecords) {
-		return crudEngine.postForm4Table(formResult, paramSuffix, checkedParentRecords);
+	public W5FormResult getFormResult2(Map<String, Object> scd, int formId) {
+		return uiEngine.getFormResult2(scd, formId);
 	}
-
+	
 
 
 	public W5FormResult postForm4Table(Map<String, Object> scd, int formId, int action,
@@ -854,4 +853,6 @@ public class FrameworkService {
 		metadataWriter.saveCredentials(cusId, userId, picUrl, fullName, socialNet, email, nickName, projects, userTips);
 		saveImage(picUrl, userId, cusId, null);
 	}
+
+
 }

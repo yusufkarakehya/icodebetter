@@ -1614,8 +1614,13 @@ public class PostgreSQLWriter extends BaseDAO {
 		case	3351: //component
 			if(fr.getAction()!=3) {
 				W5Component comp = (W5Component)metadataLoader.getMetadataObject("W5Component", "componentId", GenericUtil.uInt(fr.getRequestParams().get("tcomponent_id")), projectId, null);
+						
 				if(!GenericUtil.isEmpty(comp.getCode())) try{
-					if(comp.getFrontendLang()!=1)comp.setCode(NashornUtil.babelTranspileJSX(comp.getCode()));
+					if(comp.getFrontendLang()!=1 && GenericUtil.hasPartInside2("5,8,9", FrameworkCache.getProject(projectId).getUiWebFrontendTip())) {
+						comp.setCode(NashornUtil.babelTranspileJSX(comp.getCode()));
+						executeUpdateSQLQuery("update iwb.w5_component t set js_code=?::text where project_uuid=?::text AND component_id=?::integer", 
+								comp.getCode(), comp.getProjectUuid(), comp.getComponentId());
+					}
 					FrameworkCache.setComponent(projectId, comp);
 				} catch(Exception ee) {
 					if (!fr.getRequestParams().containsKey("_confirmId_" + comp.getComponentId()))

@@ -7696,4 +7696,5 @@ public class ExtJs3_4 implements ViewAdapter {
 		return buf;
 	}
 
+	public	StringBuilder serializeShowForm2(W5FormResult formResult) {return null;}
 }

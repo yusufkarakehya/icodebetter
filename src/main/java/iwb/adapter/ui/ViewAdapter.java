@@ -14,6 +14,7 @@ import iwb.domain.result.W5TableRecordInfoResult;
 
 public interface ViewAdapter {
 	public	StringBuilder serializeShowForm(W5FormResult formResult);
+	public	StringBuilder serializeShowForm2(W5FormResult formResult);
 	public	StringBuilder serializePostForm(W5FormResult formResult);
 	public	StringBuilder serializeTemplate(W5PageResult templateResult);
 	public	StringBuilder serializeQueryData(W5QueryResult queryResult);

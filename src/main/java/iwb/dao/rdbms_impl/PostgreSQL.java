@@ -3108,7 +3108,7 @@ public class PostgreSQL extends BaseDAO {
 						if (tc.getRelatedStaticTableFieldId() != 0) {
 							sql.append(", x.").append(t.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc())
 									.append(" pobject_tip");
-							ptCount = 2; // multi:parent
+							ptCount = t.get_tableParentList().size(); // multi:parent
 						} else
 							ptCount = 1; // single:parent
 					} else 
@@ -3172,10 +3172,18 @@ public class PostgreSQL extends BaseDAO {
 								break;
 							}
 						if (tableId == -1) { // problems, parent bulamamis
-							W5TableRecordHelper trhError = new W5TableRecordHelper();
-							trhError.setRecordDsc("ERROR: parent not found");
-							l.add(trhError);
-							return l;
+							for (W5TableChild tc2 : t.get_tableParentList())
+								if (tc2.getRelatedStaticTableFieldId() == 0) {
+									trh.setParentTableId(tableId = tc2.getTableId());
+									t = FrameworkCache.getTable(scd, tableId);
+									break;
+								}
+							if (tableId == -1) {
+								W5TableRecordHelper trhError = new W5TableRecordHelper();
+								trhError.setRecordDsc("ERROR: parent not found");
+								l.add(trhError);
+								return l;
+							}
 						}
 					}
 

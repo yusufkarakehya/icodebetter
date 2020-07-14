@@ -5170,4 +5170,5 @@ columns:[
 		buf.append("}");
 		return buf;
 	}
+	public	StringBuilder serializeShowForm2(W5FormResult formResult) {return null;}
 }

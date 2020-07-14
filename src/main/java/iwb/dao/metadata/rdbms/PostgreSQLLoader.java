@@ -468,7 +468,9 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 				"from W5PageObject t where t.activeFlag=1 AND t.pageId=?0 AND t.projectUuid=?1 order by t.tabOrder",
 				pr.getPageId(), projectId));
 
-		if(page.getPageType()==2 && page.getObjectId()==2)page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
+		if(page.getPageType()==2 && page.getObjectId()==2 && GenericUtil.hasPartInside2("5,8,9", FrameworkCache.getProject(projectId).getUiWebFrontendTip())) {
+			page.setCode(NashornUtil.babelTranspileJSX(page.getCode()));
+		}
 		
 		for (W5PageObject to : page.get_pageObjectList())
 			if (to.getSrcQueryFieldId() != null && to.getDstQueryParamId() != null) {
@@ -1511,7 +1513,8 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 		Map<Integer, W5Component> wComponentMap = new HashMap<Integer, W5Component>();
 		List<W5Component> l = find("from W5Component t where t.projectUuid=?0", projectId);
 		for (W5Component c : l) {
-			if(c.getFrontendLang()==2)try{
+			if(c.getFrontendLang()==2)if(!GenericUtil.isEmpty(c.getJsCode()))c.setCode(c.getJsCode());
+			else try{
 				c.setCode(NashornUtil.babelTranspileJSX(c.getCode()));
 			}catch(Exception ee) {ee.printStackTrace();}
 			wComponentMap.put(c.getComponentId(), c);
