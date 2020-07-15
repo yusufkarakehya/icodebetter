@@ -20,7 +20,6 @@ public class W5Component implements java.io.Serializable, W5Base{
 	 */
 	private static final long serialVersionUID = 66623434121L;
 	private int componentId;
-	private int parentComponentId;
 
 	private String dsc;
 
@@ -44,14 +43,6 @@ public class W5Component implements java.io.Serializable, W5Base{
 		this.componentId = componentId;
 	}
 
-	@Column(name="parent_component_id")
-	public int getParentComponentId() {
-		return parentComponentId;
-	}
-
-	public void setParentComponentId(int parentComponentId) {
-		this.parentComponentId = parentComponentId;
-	}
 
 	@Column(name="dsc")
 	public String getDsc() {

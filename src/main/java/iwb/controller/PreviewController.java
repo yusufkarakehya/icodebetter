@@ -207,10 +207,11 @@ public class PreviewController implements InitializingBean {
 	@RequestMapping({"/*/ajaxQueryData", "/*/query/*"})
 	public void hndAjaxQueryData(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		int queryId = GenericUtil.uInt(request, "_qid");
+		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
+		int queryId = GenericUtil.uInt(requestMap, "_qid");
 		if(queryId==0) queryId = getLastId(request.getRequestURI());
 //		JSONObject jo = null;
-		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
+
 /*		if(GenericUtil.safeEquals(request.getContentType(),"application/json")){
 			JSONObject jo = HttpUtil.getJson(request);
 			if(jo.has("_qid"))queryId = jo.getInt("_qid");
@@ -690,6 +691,22 @@ public class PreviewController implements InitializingBean {
 
 	}
 	
+
+	@RequestMapping("/*/forms2/*")
+	public void hndShowForm2(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		int formId = getLastId(request.getRequestURI());
+		logger.info("hndShowForm(" + formId + ")");
+
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+
+		W5FormResult formResult = service.getFormResult2(scd, formId);
+
+		response.setContentType("application/json");
+		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
+		response.getWriter().close();
+
+	}
 	
 	@RequestMapping({"/*/showMForm", "/*/mforms/*"})
 	public void hndShowMForm(HttpServletRequest request, HttpServletResponse response)

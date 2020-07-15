@@ -65,7 +65,7 @@ import iwb.util.UserUtil;
 public class PrimeReact16 implements ViewAdapter {
 	final public static String[] labelMap = new String[]{"info","warning","danger"};
 	final public static String[] filterMap = new String[]{"","serverFilter","dateRangeFilter","numberFilter","numberFilter","numberFilter"};
-	final public static String[] dateFormatMulti = new String[] {"dd/mm/yy","mm/dd/yy","yyyy/mm/dd"};
+	final public static String[] dateFormatMulti = new String[] {"DD/MM/YYYY","MM/DD/YYYY","YYYY/MM/DD"};
 	final public static String[] fileAcceptMap = new String[]{"image/*",".xls,.xlsx,.csv",
 			".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",".pdf",".txt"};
 	
@@ -1009,11 +1009,10 @@ public class PrimeReact16 implements ViewAdapter {
 				"ajaxPostForm",
 				f.getObjectType() == 3 ? "rpt/" + f.getDsc() : "ajaxExecDbFunc",
 				"ajaxExecDbFunc",null,null,"search_form", "search_form", null,null,"ajaxCallWs?serviceName="+(f.getObjectType() == 11 ? FrameworkCache.getServiceNameByMethodId(scd,  f.getObjectId()):"")+"&"};
-		s.append("{\nconstructor(props, context){\n super(props, context);\n if(props.register)props.register('forms/").append(formResult.getFormId())
-			.append("', this);");
+		s.append("{\nconstructor(props, context){\n super(props, context);");
 		if(f.getObjectType()>1)s.append("\n this.url='").append(postFormStr[f.getObjectType()]).append("'");
 		s.append(";\n this.params=").append(GenericUtil.fromMapToJsonString(formResult.getRequestParams()))
-			.append(";\n this.egrids={};\n this.state=(!props.values && iwb.states.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
+			.append(";\n this.state=(!props.values && iwb.states.forms['").append(formResult.getUniqueId()).append("']) ||{errors:{},values:props.values||{");
 		
 		boolean b = false;
 		for (W5FormCellHelper fc : formResult.getFormCellResults())if (fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlType()>0 && fc.getFormCell().getControlType()<100) {
@@ -1045,13 +1044,17 @@ public class PrimeReact16 implements ViewAdapter {
 		
 		s.append("},\n options:{");
 		b = false;
-		for (W5FormCellHelper fc : formResult.getFormCellResults())if (!GenericUtil.isEmpty(fc.getValue()) && fc.getFormCell().getActiveFlag() != 0 && fc.getFormCell().getControlType()==10
-				&& fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
-			if (b)s.append(","); else b = true;
-			Object[] oo = fc.getLookupQueryResult().getData().get(0);
-			s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS(oo[0].toString())).append("'}]");
+		for (W5FormCellHelper fc : formResult.getFormCellResults())if (!GenericUtil.isEmpty(fc.getValue()) && fc.getFormCell().getActiveFlag() != 0) {
+			if(fc.getFormCell().getControlType()==10 && fc.getLookupQueryResult() != null && !GenericUtil.isEmpty(fc.getLookupQueryResult().getData())) {
+				if (b)s.append(","); else b = true;
+				Object[] oo = fc.getLookupQueryResult().getData().get(0);
+				s.append(fc.getFormCell().getDsc()).append(":[{id:'").append(oo[1]).append("',dsc:'").append(GenericUtil.stringToJS(oo[0].toString())).append("'}]");
+			} else if(fc.getFormCell().getControlType()==71 && !GenericUtil.isEmpty(fc.getExtraValuesMap())) {
+				if (b)s.append(","); else b = true;
+				Map evm = fc.getExtraValuesMap();	
+				s.append(fc.getFormCell().getDsc()).append(":{fileId:").append(evm.get("id")).append(", fileSize:").append(evm.get("fsize")).append(", fileName:\"").append(GenericUtil.stringToJS2((String)evm.get("dsc"))).append("\"}");
+			}
 		}
-
 		s.append("},activeTab:false}");
 		//\nif(this.componentWillPost)this.componentWillPost=this.componentWillPost.bind(this);
 		Map<String, List<W5FormCell>> pcr = new HashMap();
@@ -1073,7 +1076,7 @@ public class PrimeReact16 implements ViewAdapter {
 			
 			
 		}
-		s.append("\n this._id='").append(formResult.getUniqueId()).append("';this.triggerz4ComboRemotes={");
+		s.append("\n this._id='").append(formResult.getUniqueId()).append("';\n this.triggerz4ComboRemotes={");
 		b = false;
 		for(String k:pcr.keySet()){
 			if(b)s.append(",");else b=true;
@@ -1095,7 +1098,7 @@ public class PrimeReact16 implements ViewAdapter {
 		for (W5FormCellHelper fc : formResult.getFormCellResults())
 			if (fc.getFormCell().getActiveFlag() != 0) {
 				if (fc.getFormCell().getControlType() != 102) {// label'dan farkli ise. label direk render edilirken koyuluyor
-					s.append("\n var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell(customizationId, xlocale,fc, formResult)).append(";");
+					s.append("\n var _").append(fc.getFormCell().getDsc()).append("=").append(serializeFormCell2(customizationId, xlocale,fc, formResult)).append(";");
 				} else {
 					fc.setValue(LocaleMsgCache.get2(customizationId, xlocale,
 							fc.getFormCell().getLocaleMsgKey()));
@@ -1607,9 +1610,9 @@ public class PrimeReact16 implements ViewAdapter {
 		String dsc = fc.getFormCell().getDsc();
 		if(fc.getFormCell().getControlType() == 5){//checkbox
 			buf.append(",\n  _").append(dsc).append(" && _(FormGroup, {className:'x-form-elements x-form-element-").append(fc.getFormCell().getFormCellId()).append("',style:{paddingTop:25,display: _").append(dsc).append(".hidden?'none':'flex'}}, ");
-			if(fc.getFormCell().getParentFormCellId()==1)buf.append("_(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("), _('div',{style:{width:'1rem'}}), ");
+			if(fc.getFormCell().getParentFormCellId()==1)buf.append("_(XFormElement,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append("), _('div',{style:{width:'1rem'}}), ");
 			buf.append("_(Label, {style:{marginRight:'1rem', marginTop:-3}, className:'inputLabel', htmlFor:\"").append(dsc).append("\"}, _").append(dsc).append(".label)");
-			if(fc.getFormCell().getParentFormCellId()!=1)buf.append(", _(_").append(dsc).append(".$,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append(")");
+			if(fc.getFormCell().getParentFormCellId()!=1)buf.append(", _(XFormElement,viewMode?Object.assign({disabled:true},_").append(dsc).append("):_").append(dsc).append(")");
 			buf.append(")");
 		} else {
 			if (fc.getFormCell().getControlType() == 102) {// displayField4info
@@ -1620,7 +1623,7 @@ public class PrimeReact16 implements ViewAdapter {
 				buf.append(",\n  _").append(dsc).append(" && _(FormGroup, _").append(dsc).append(".hidden?{style:{display:'none'}}:{className:classNames('x-form-elements','x-form-element-").append(fc.getFormCell().getFormCellId()).append("', {'validation-error':!!errors.").append(dsc).append("})}, _(Label, {className:'inputLabel', htmlFor:\"").append(dsc).append("\"},_").append(dsc).append(".label");
 				buf.append(", \" \", _").append(dsc).append(".hint && _(\"span\",{className:\"xlabel-hint\", title:_").append(dsc).append(".hint},_(\"i\",{className:\"icon-question\"}))");
 				if(FrameworkSetting.reactLabelRequired && /*fc.getFormCell().getNotNullFlag()!=0 && */fc.getFormCell().getNrdType()==0)buf.append(", \" \", !_").append(dsc).append(".readOnly && !viewMode && _").append(dsc).append(".required && _(\"span\",{className:\"xlabel-required\"},getLocMsg(\"required\"))");
-				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(_").append(dsc).append(".$||InputText,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
+				buf.append("), viewMode ? iwb.getFieldRawValue(_").append(dsc).append(",this.state.options.").append(dsc).append(") :_(XFormElement,_").append(dsc).append("),errors.").append(dsc).append(" && _('small',null,errors.").append(dsc).append("))");
 			}
 		}
 		return buf;
@@ -2115,6 +2118,226 @@ public class PrimeReact16 implements ViewAdapter {
 			case 22:
 				buf.append(",onChange:this.onTimeChange('").append(fc.getDsc()).append("')");
 				break;
+			default:
+				buf.append(",onChange:this.onChange");
+			}
+		} else { //grid/toolbar/list/gantt
+			buf.append(",_control:").append(fc.getControlType());
+			switch(fc.getControlType()){
+				case	5:
+					buf.append(",defaultChecked:").append(GenericUtil.uInt(value)>0);
+					break; 
+				default:buf.append(",defaultValue:'").append(GenericUtil.stringToJS(value)).append("'");
+			}
+		}
+		buf.append(serializeFormCellProperty(cellResult, formResult));
+		if(!GenericUtil.isEmpty(fc.getExtraDefinition()))buf.append(fc.getExtraDefinition());
+
+		buf.append("}");
+
+		return buf;
+	}
+	
+	private StringBuilder serializeFormCell2(int customizationId,
+			String xlocale, W5FormCellHelper cellResult, W5FormResult formResult) {
+		W5FormCell fc = cellResult.getFormCell();
+		String value = cellResult.getValue(); // bu ilerde hashmap ten gelebilir
+		// int customizationId =
+		// PromisUtil.uInt(formResult.getScd().get("customizationId"));
+		StringBuilder buf = new StringBuilder();
+		if (fc.getControlType() == 0)return buf.append("'").append(GenericUtil.stringToJS(value)).append("'");
+		buf.append("{");
+		
+		if (fc.getControlType() == 102)
+			return buf.append("xtype:'div', className:'alert alert-").append(labelMap[fc.getLookupQueryId()]).append("',children:[_('i',{className:'icon-info'}),' ','").append(GenericUtil.stringToJS(value)).append("']}");
+		else if ((fc.getControlType() == 101 || cellResult.getHiddenValue() != null)/* && (fc.getControlTip()!=9 && fc.getControlTip()!=16) */) {
+			buf.append("type:'text', readOnly:true, hiddenValue:'").append(GenericUtil.stringToJS(cellResult.getHiddenValue())).append("',label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("',disabled:true, value:'").append(GenericUtil.stringToJS(value)).append("'");
+			if(fc.get_sourceObjectDetail()==null && !GenericUtil.isEmpty(fc.getExtraDefinition())){
+				if(!fc.getExtraDefinition().startsWith(",")) {
+					buf.append(",");
+				}
+				buf.append(fc.getExtraDefinition());
+				
+			}
+			buf.append("}");
+			return buf;
+			
+		}
+
+		switch(fc.getControlType()){
+		case	1:buf.append("xtype:'text'");
+			break;//string
+		case	42:buf.append("xtype:'password'");break;
+		case	2:buf.append("xtype:'date'");break; //TODO:date
+		case	18:buf.append("xtype:'timestamp'");break; //TODO:datetime
+		case	22:buf.append("xtype:'time'");break; //TODO:time
+		case	3://double
+			buf.append("xtype:'numeric'");
+			if(fc.getNotNullFlag()!=0)buf.append(",required:true");
+			break;//int
+		case	4://integer
+			buf.append("xtype:'integer'");
+			if(fc.getNotNullFlag()!=0)buf.append(",required:true");
+			if(fc.getLookupQueryId()==1)//spinner
+				buf.append(",showButtons:!0");
+
+			break;//int
+		case	5:buf.append("xtype:'checkbox'");break;
+		case	100:buf.append("xtype:'button',color:'primary',onClick:(ax)=>{").append(fc.getExtraDefinition()).append("},children:[");
+				if(fc.getLocaleMsgKey().startsWith("icon-"))buf.append("_('i',{className:'").append(fc.getLocaleMsgKey()).append("'})]");
+				else buf.append("'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("']");
+				if(fc.getControlWidth()>0)buf.append(",width:").append(fc.getControlWidth());
+
+				return buf.append(serializeFormCellProperty(cellResult, formResult)).append("}");
+
+		case	6://combo static
+		case	8:// lovcombo-static
+		case	58:// superbox lovcombo-static
+
+		case	7://combo query
+		case	15://lovcombo query
+		case	59://superbox lovcombo query
+			if(fc.getControlType()==8 ||fc.getControlType()==58 || fc.getControlType()==15 ||fc.getControlType()==59)
+				buf.append("xtype:'").append(formResult!=null && fc.getParentFormCellId()==1?"checkbox-group'":"multi-combo'");
+			else
+				buf.append("xtype:'").append(formResult!=null && fc.getParentFormCellId()==1?"radio-group'":"combo'");
+			
+			buf.append(", placeholder: getLocMsg('select_placeholder'), options:[");//static combo
+			if ((fc.getControlType()==6 || fc.getControlType()==8 ||fc.getControlType()==58) && cellResult.getLookupListValues() != null) {
+				boolean b1=false;
+				
+				for (W5Detay p : (List<W5Detay>) cellResult
+						.getLookupListValues()) {
+					if (b1)
+						buf.append(",");
+					else
+						b1 = true;
+					buf.append("{id:'").append(p.getVal()).append("',dsc:'")
+							.append(cellResult.getLocaleMsgFlag() != 0 ? LocaleMsgCache
+									.get2(customizationId, xlocale, p.getDsc())
+									: p.getDsc()).append("'");
+					buf.append("}");
+				}
+			} else if ((fc.getControlType()==7 || fc.getControlType()==15 ||fc.getControlType()==59)){
+				if(cellResult.getLookupQueryResult()!=null && cellResult.getLookupQueryResult().getData() != null) {
+					boolean b1 = false;
+					for (Object[] p : cellResult.getLookupQueryResult().getData()) {
+						if (b1)
+							buf.append(",");
+						else
+							b1 = true;
+						boolean bb = false;
+						buf.append("{");
+						for (W5QueryField f : cellResult.getLookupQueryResult().getQuery().get_queryFields()) {
+							Object z = p[f.getTabOrder() - 1];
+							if (bb)
+								buf.append(",");
+							else
+								bb = true;
+							if (z == null)z = "";
+							buf.append(f.getDsc()).append(":'")
+									.append(f.getPostProcessType() == 2 ? LocaleMsgCache
+											.get2(customizationId, xlocale,
+													z.toString()) : GenericUtil
+											.stringToJS(z.toString()))
+									.append("'");
+						}
+						buf.append("}");
+					}
+				}
+				if(fc.getControlType()==15 && cellResult.getLookupQueryResult().getQueryId()==606 && formResult!=null && formResult.getForm()!=null && formResult.getForm().getObjectType()==1) {//workflow extra records
+					buf.append(",{dsc:'approved', id:998},{dsc:'rejected', id:999}");
+				}
+			}
+			buf.append("], required:").append(fc.getNotNullFlag()!=0);
+		break; 
+		
+		case	9://combo query remote
+		case	16://lovcombo query remote
+			buf.append("xtype:'").append(fc.getControlType()==16?"dynamic-multi-combo":"dynamic-combo")
+				.append("', placeholder: getLocMsg('select_placeholder'), options:options.").append(fc.getDsc()).append("||[],required:").append(fc.getNotNullFlag()!=0);
+			break;
+		case	10://advanced select: TODO ilk geldiginde oo loadOptions'ta atanacak
+
+			int maxRows = FrameworkCache.getAppSettingIntValue(0,
+					"advanced_select_max_rows");
+			if (maxRows == 0)
+				maxRows = 100;
+			buf.append("xtype:'autocomplete', placeholder:'").append(LocaleMsgCache.get2(0, xlocale, "autocomplete_placeholder"))
+				.append("', url:'query/").append(fc.getLookupQueryId()).append("?limit=").append(maxRows);
+			if(!GenericUtil.isEmpty(fc.getLookupIncludedParams()))buf.append("&").append(fc.getLookupIncludedParams());
+			buf.append("', options:options.").append(fc.getDsc()).append("||[],onQuery4Autocomplete: this.onQuery4Autocomplete, required:").append(fc.getNotNullFlag()!=0);
+		break; // advanced select
+		case	23://treecombo(local)
+		case	26://lovtreecombo(local) TODO
+			buf.append("type:'text'");
+		break; // 		
+
+		case	12://html editor
+			buf.append("xtype:'html-editor'");
+			break;
+		case	25://textarea(ozel tanimlama)
+		case	11:
+			buf.append("xtype:'textarea'");
+			break; // textarea
+		case	41://monaco
+			buf.append("xtype:'code-editor', language:'").append(new String[]{"javascript","html","xml","sql","css"}[fc.getLookupQueryId()>0 && fc.getLookupQueryId()<6 ?fc.getLookupQueryId()-1:0]).append("'");
+
+			break; // textarea
+//		{ view:"label", label:'Fill the form below to access <br>the main datacore.'
+		
+		case	71://file attachment
+			buf.append("xtype:'file-upload', options:options.").append(fc.getDsc()).append("||{}, url:'./upload.form?table_id=").append(formResult!=null ? formResult.getForm().getObjectId():0)
+				.append("&table_pk=").append(1).append("'");
+
+			if(fc.getLookupQueryId()>0 && fc.getLookupQueryId()<=fileAcceptMap.length) {
+				buf.append(", accept:\"").append(fileAcceptMap[fc.getLookupQueryId()-1]).append("\"");
+			} else if(fc.getLookupQueryId()==-1 && !GenericUtil.isEmpty(fc.getLookupIncludedValues()))
+					buf.append(", accept:\"").append(GenericUtil.stringToJS2(fc.getLookupIncludedValues())).append("\"");
+			break;
+		
+		default:			
+			buf.append("type:'text'");
+			break;
+		
+		
+		}
+		buf.append(",name:'").append(fc.getDsc()).append("'");//,id:'").append(fc.getDsc()).append("'");
+		buf.append(",key:").append(fc.getFormCellId());
+		if(formResult!=null && formResult.getUniqueId()!=null && GenericUtil.hasPartInside2("12,41", fc.getControlType())) {
+			buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
+		}
+		
+		if(fc.getControlType()!=3 && fc.getControlType()!=4 && fc.getControlType()!=5 && fc.getControlType()!=22 && fc.getNotNullFlag()!=0)buf.append(",required:true");
+		buf.append(", label:'").append(LocaleMsgCache.get2(customizationId, xlocale, fc.getLocaleMsgKey())).append("'");
+
+		if(formResult!=null){ //FORM
+			buf.append(",value:values.").append(fc.getDsc()).append("||null");
+		//	if(true)buf.append(",on:{onChange:function(newv, oldv){this.validate();}}");
+			
+			switch(fc.getControlType()){
+			case	6:	case	7:
+			case	9:	
+				buf.append(",onChange:this.onComboChange");
+				break;
+			case 10:
+				buf.append(",onChange:this.onAutocompleteChange");
+				break;
+			case	8:	case	58: case	15:case 16:case	59://fc.getControlTip()==8 ||fc.getControlTip()==58 || fc.getControlTip()==15 ||fc.getControlTip()==59
+				buf.append(",onChange:this.").append(fc.getParentFormCellId()==1?"onCheckboxGroupChange":"onMultiComboChange");
+				break;
+/*			case	2:	case	18://case	22:
+				buf.append(",onChange:this.onDateChange");
+				break; */
+	/*		case	12:	//html editor:
+				buf.append(",onHtmlChange:this.onHtmlChange");
+				break; */
+			case	71://file upload
+				buf.append(",onChange:this.onFileChange");
+				break;
+/*			case 22:
+				buf.append(",onChange:this.onTimeChange");
+				break; */
 			default:
 				buf.append(",onChange:this.onChange");
 			}
