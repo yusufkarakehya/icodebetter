@@ -34,47 +34,46 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.dao.metadata.MetadataLoader;
-// import iwb.dao.tsdb_impl.InfluxDao;
-import iwb.domain.db.Log5GlobalFuncAction;
-import iwb.domain.db.Log5QueryAction;
-import iwb.domain.db.W5Email;
-import iwb.domain.db.W5Form;
-import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5FormCellProperty;
-import iwb.domain.db.W5FormModule;
-import iwb.domain.db.W5FormSmsMail;
-import iwb.domain.db.W5FormValue;
-import iwb.domain.db.W5FormValueCell;
-import iwb.domain.db.W5GlobalFuncParam;
-import iwb.domain.db.W5Grid;
-import iwb.domain.db.W5LookUp;
-import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Param;
-import iwb.domain.db.W5Project;
-import iwb.domain.db.W5Query;
-import iwb.domain.db.W5QueryField;
-import iwb.domain.db.W5QueryParam;
-import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableChild;
-import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TableFieldCalculated;
-import iwb.domain.db.W5TableParam;
-import iwb.domain.db.W5VcsCommit;
-import iwb.domain.db.W5VcsObject;
-import iwb.domain.db.W5Workflow;
-import iwb.domain.db.W5WorkflowStep;
-import iwb.domain.db.W5WsMethod;
-import iwb.domain.db.W5WsMethodParam;
-import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5TableChildHelper;
-import iwb.domain.helper.W5TableRecordHelper;
-import iwb.domain.result.W5FormResult;
-import iwb.domain.result.W5GlobalFuncResult;
-import iwb.domain.result.W5QueryResult;
-import iwb.domain.result.W5TableRecordInfoResult;
 import iwb.engine.GlobalScriptEngine;
 import iwb.enums.FieldDefinitions;
 import iwb.exception.IWBException;
+import iwb.model.db.Log5GlobalFuncAction;
+import iwb.model.db.Log5QueryAction;
+import iwb.model.db.W5Email;
+import iwb.model.db.W5Form;
+import iwb.model.db.W5FormCell;
+import iwb.model.db.W5FormCellProperty;
+import iwb.model.db.W5FormModule;
+import iwb.model.db.W5FormSmsMail;
+import iwb.model.db.W5FormValue;
+import iwb.model.db.W5FormValueCell;
+import iwb.model.db.W5GlobalFuncParam;
+import iwb.model.db.W5Grid;
+import iwb.model.db.W5LookUp;
+import iwb.model.db.W5LookUpDetay;
+import iwb.model.db.W5Param;
+import iwb.model.db.W5Project;
+import iwb.model.db.W5Query;
+import iwb.model.db.W5QueryField;
+import iwb.model.db.W5QueryParam;
+import iwb.model.db.W5Table;
+import iwb.model.db.W5TableChild;
+import iwb.model.db.W5TableField;
+import iwb.model.db.W5TableFieldCalculated;
+import iwb.model.db.W5TableParam;
+import iwb.model.db.W5VcsCommit;
+import iwb.model.db.W5VcsObject;
+import iwb.model.db.W5Workflow;
+import iwb.model.db.W5WorkflowStep;
+import iwb.model.db.W5WsMethod;
+import iwb.model.db.W5WsMethodParam;
+import iwb.model.helper.W5FormCellHelper;
+import iwb.model.helper.W5TableChildHelper;
+import iwb.model.helper.W5TableRecordHelper;
+import iwb.model.result.W5FormResult;
+import iwb.model.result.W5GlobalFuncResult;
+import iwb.model.result.W5QueryResult;
+import iwb.model.result.W5TableRecordInfoResult;
 import iwb.service.FrameworkService;
 import iwb.util.DBUtil;
 import iwb.util.EncryptionUtil;
@@ -432,8 +431,7 @@ public class PostgreSQL extends BaseDAO {
 							queryResult.getSqlParams().add(queryResult.getStartRowNumber());
 
 						sql2.append("select z.*");
-						if (queryResult.getPostProcessQueryFields() != null && mainTable != null
-								&& queryResult.getViewLogModeTip() == 0) {
+						if (queryResult.getPostProcessQueryFields() != null && mainTable != null) {
 							addPostQueryFields(queryResult, sql2, paramIndex);
 						}
 
@@ -526,8 +524,7 @@ public class PostgreSQL extends BaseDAO {
 							s.close();
 						}
 						
-						if (queryResult.getPostProcessQueryFields() != null && mainTable != null
-								&& queryResult.getViewLogModeTip() == 0) {
+						if (queryResult.getPostProcessQueryFields() != null && mainTable != null) {
 							sql2.append("select z.*"); //
 							addPostQueryFields(queryResult, sql2, paramIndex);
 
@@ -826,7 +823,7 @@ public class PostgreSQL extends BaseDAO {
 		 * "ali baba ${obj.dsc} ve 40 haramiler ${lnk.pk_query_field_id.dsc} olmus" );
 		 * dao.interprateTemplate(scd, 5,1294, tmpx, true);
 		 */
-		queryResult.setViewLogModeTip((short) GenericUtil.uInt(requestParams, "_vlm"));
+
 
 		//
 		// queryResult.setOrderBy(PromisUtil.uStrNvl(requestParams.get(PromisUtil.uStrNvl(PromisSetting.appSettings.get("sql_sort"),"sort")),

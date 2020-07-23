@@ -16,36 +16,36 @@ import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.dao.metadata.MetadataLoader;
 import iwb.dao.rdbms_impl.PostgreSQL;
-import iwb.domain.db.W5BIGraphDashboard;
-import iwb.domain.db.W5Conversion;
-import iwb.domain.db.W5ConvertedObject;
-import iwb.domain.db.W5Detay;
-import iwb.domain.db.W5Email;
-import iwb.domain.db.W5Form;
-import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5FormModule;
-import iwb.domain.db.W5FormSmsMail;
-import iwb.domain.db.W5FormSmsMailAlarm;
-import iwb.domain.db.W5Grid;
-import iwb.domain.db.W5GridColumn;
-import iwb.domain.db.W5LookUp;
-import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5PageObject;
-import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableChild;
-import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TableParam;
-import iwb.domain.db.W5WorkflowStep;
-import iwb.domain.db.W5WsMethod;
-import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.result.M5ListResult;
-import iwb.domain.result.W5CardResult;
-import iwb.domain.result.W5FormResult;
-import iwb.domain.result.W5GridResult;
-import iwb.domain.result.W5ListViewResult;
-import iwb.domain.result.W5PageResult;
-import iwb.domain.result.W5QueryResult;
 import iwb.exception.IWBException;
+import iwb.model.db.W5BIGraphDashboard;
+import iwb.model.db.W5Conversion;
+import iwb.model.db.W5ConvertedObject;
+import iwb.model.db.W5Detay;
+import iwb.model.db.W5Email;
+import iwb.model.db.W5Form;
+import iwb.model.db.W5FormCell;
+import iwb.model.db.W5FormModule;
+import iwb.model.db.W5FormSmsMail;
+import iwb.model.db.W5FormSmsMailAlarm;
+import iwb.model.db.W5Grid;
+import iwb.model.db.W5GridColumn;
+import iwb.model.db.W5LookUp;
+import iwb.model.db.W5LookUpDetay;
+import iwb.model.db.W5PageObject;
+import iwb.model.db.W5Table;
+import iwb.model.db.W5TableChild;
+import iwb.model.db.W5TableField;
+import iwb.model.db.W5TableParam;
+import iwb.model.db.W5WorkflowStep;
+import iwb.model.db.W5WsMethod;
+import iwb.model.helper.W5FormCellHelper;
+import iwb.model.result.M5ListResult;
+import iwb.model.result.W5CardResult;
+import iwb.model.result.W5FormResult;
+import iwb.model.result.W5GridResult;
+import iwb.model.result.W5ListViewResult;
+import iwb.model.result.W5PageResult;
+import iwb.model.result.W5QueryResult;
 import iwb.util.DBUtil;
 import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
@@ -588,9 +588,7 @@ public class UIEngine {
 							? formResult.getUniqueId() : null);
 
 			for (W5FormCellHelper cr : formResult.getFormCellResults())
-				if (cr.getFormCell().getControlType() == 99) { // grid ise bunun
-																// icinde var mi
-																// editableFormCell
+				if (cr.getFormCell().getControlType() == 99) { // grid 
 					W5Grid g = (W5Grid) cr.getFormCell().get_sourceObjectDetail();
 					W5GridResult gr = new W5GridResult(g.getGridId());
 					gr.setRequestParams(formResult.getRequestParams());
@@ -886,9 +884,6 @@ public class UIEngine {
 				case 1: // grid
 					W5GridResult gridResult = metadataLoader.getGridResult(scd, o.getObjectId(), requestParams,
 							pageId == 298 /* || objectCount!=0 */);
-					if (pageId == 298) { // log template
-						gridResult.setViewLogMode(true);
-					}
 					if (o.getObjectType() < 0) {
 						if (GenericUtil.uInt(requestParams, "_gid" + gridResult.getGridId() + "_a") != 0)
 							gridResult.setAction(

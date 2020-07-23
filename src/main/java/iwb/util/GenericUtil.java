@@ -52,18 +52,18 @@ import iwb.cache.FrameworkCache;
 import iwb.cache.FrameworkSetting;
 import iwb.cache.LocaleMsgCache;
 import iwb.dao.rdbms_impl.PostgreSQL;
-import iwb.domain.db.W5Base;
-import iwb.domain.db.W5FormCell;
-import iwb.domain.db.W5LookUpDetay;
-import iwb.domain.db.W5Param;
-import iwb.domain.db.W5Table;
-import iwb.domain.db.W5TableField;
-import iwb.domain.db.W5TableParam;
-import iwb.domain.db.W5WsMethodParam;
-import iwb.domain.helper.W5FormCellHelper;
-import iwb.domain.helper.W5ReportCellHelper;
 import iwb.engine.GlobalScriptEngine;
 import iwb.exception.IWBException;
+import iwb.model.db.W5Base;
+import iwb.model.db.W5FormCell;
+import iwb.model.db.W5LookUpDetay;
+import iwb.model.db.W5Param;
+import iwb.model.db.W5Table;
+import iwb.model.db.W5TableField;
+import iwb.model.db.W5TableParam;
+import iwb.model.db.W5WsMethodParam;
+import iwb.model.helper.W5FormCellHelper;
+import iwb.model.helper.W5ReportCellHelper;
 
 // import iwb.dao.RdbmsDao;
 
