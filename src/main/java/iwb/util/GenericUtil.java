@@ -1651,7 +1651,7 @@ public class GenericUtil {
 			
 		}
 
-		if (pvalue == null || pvalue.trim().length() == 0)
+		if (pvalue == null || pvalue.trim().length() == 0 || (param.getParamType()>1 && pvalue.equals("null")))
 			pvalue = defaultValue;
 
 		Object psonuc = null;
