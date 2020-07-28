@@ -54,6 +54,9 @@ import iwb.exception.IWBException;
 import iwb.model.db.Log5UserAction;
 import iwb.model.db.W5Component;
 import iwb.model.db.W5FileAttachment;
+import iwb.model.db.W5Form;
+import iwb.model.db.W5FormCell;
+import iwb.model.db.W5FormModule;
 import iwb.model.db.W5LookUp;
 import iwb.model.db.W5LookUpDetay;
 import iwb.model.db.W5Project;
@@ -726,6 +729,30 @@ public class PreviewController implements InitializingBean {
 	}
 	
 
+	private W5FormResult loadFormFromCache(Map<String, Object> scd, int formId) {
+		W5Form f = FrameworkCache.getForm(scd, formId);
+		if(f==null)return null;
+		W5FormResult fr = new W5FormResult(formId);
+		fr.setForm(f);
+		fr.setScd(scd);fr.setRequestParams(new HashMap());fr.setOutputMessages(new ArrayList());
+		if(!GenericUtil.isEmpty(f.get_moduleList())) {
+			Map<Integer, W5FormResult> m = new HashMap();
+			for(W5FormModule md:f.get_moduleList())if(md.getModuleType()==3) {//form
+				W5FormResult dfr = loadFormFromCache(scd, md.getObjectId());
+				if(dfr==null)return null;
+				if(fr.getModuleFormMap()==null)fr.setModuleFormMap(new HashMap());
+				fr.getModuleFormMap().put(md.getFormModuleId() , dfr);
+			}
+		}
+		for(W5FormCell fc:f.get_formCells())if(fc.getActiveFlag()!=0 && fc.getControlType()==97) {
+			W5FormResult dfr = loadFormFromCache(scd, -fc.getLookupQueryId());
+			if(dfr==null)return null;
+			if(fr.getModuleFormMap()==null)fr.setModuleFormMap(new HashMap());
+			fr.getModuleFormMap().put(-fc.getLookupQueryId() , dfr);
+		}
+		return fr;
+	}
+	
 	@RequestMapping("/*/forms2/*")
 	public void hndShowForm2(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -734,10 +761,13 @@ public class PreviewController implements InitializingBean {
 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
 
-		W5FormResult formResult = service.getFormResult2(scd, formId);
+		W5FormResult fr = null;
+		W5Form f = FrameworkCache.getForm(scd, formId);
+		if(f!=null) fr = loadFormFromCache(scd, formId);
+		if(fr == null) fr = service.getFormResult2(scd, formId);
 
 		response.setContentType("application/json");
-		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm(formResult).toString());
+		response.getWriter().write(getViewAdapter(scd, request).serializeShowForm2(fr).toString());
 		response.getWriter().close();
 
 	}
@@ -1710,7 +1740,7 @@ public class PreviewController implements InitializingBean {
     				} else
     					if(FrameworkSetting.debug)totalJs.append("\nconsole.log('Custom Component[").append(i).append(" : ")
     						.append(c.getDsc()).append(".js] is empty');");
-    				totalJs.append("\ntry{iwb.customComponents[").append(i).append("]=!0;}catch(e){}\n");
+    				totalJs.append("\ntry{iwb.customComponents[").append(i).append("]=()=>'!!! Could not find custom component definition for ["+c.getDsc()+"]!!!';}catch(e){}\n");
     				if(c.getLkpComponentType()==2)//custom FormElement
     					totalJs.append("\ntry{iwb.customComponents[").append(i).append("]=").append(c.getDsc()).append(";}catch(e){}\n");
     			}

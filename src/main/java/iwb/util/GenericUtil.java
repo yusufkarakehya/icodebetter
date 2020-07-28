@@ -75,7 +75,8 @@ public class GenericUtil {
 	private static final String strIndex = "0123456789+-" + dtCh;
 
 
-	public static String orderStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	final public static String orderStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	final public static String alphaNum = "0123456789"+orderStr.toLowerCase()+orderStr;
 	static int orderLen = orderStr.length();
 
 	private static long nextThreadId = 1000;
@@ -2791,5 +2792,14 @@ public class GenericUtil {
 		if(vType.equals("url"))return urlPattern.matcher(str).matches();
 		if(vType.equals("iban"))return ibanPattern.matcher(str).matches();
 		return true;
+	}
+
+	public static String generateRandomAlphanumeric(int count) {
+		StringBuilder builder = new StringBuilder();
+		while (count-- != 0) {
+			int character = (int)(Math.random()*alphaNum.length());
+			builder.append(alphaNum.charAt(character));
+		}
+		return builder.toString();
 	}
 }

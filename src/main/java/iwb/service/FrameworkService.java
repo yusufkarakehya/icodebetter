@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -821,7 +823,8 @@ public class FrameworkService {
 	public Map organizeREST(Map<String, Object> scd, String serviceName) {
 		return restEngine.organizeREST(scd, serviceName);
 	}
-
+	
+	@Transactional(propagation=Propagation.NEVER)
 	public String getServerDttm() {
 		return dao.executeSQLQuery("select to_char(current_timestamp,'dd/mm/yyyy hh24:mi:ss')").get(0).toString();
 	}
@@ -852,6 +855,61 @@ public class FrameworkService {
 			String nickName, List<Map> projects, List<Map> userTips) {
 		metadataWriter.saveCredentials(cusId, userId, picUrl, fullName, socialNet, email, nickName, projects, userTips);
 		saveImage(picUrl, userId, cusId, null);
+	}
+
+	@Transactional(propagation=Propagation.NEVER)
+	public String loadLink(String linkId) {
+		List l = dao.executeSQLQuery("select x.url, x.project_uuid from iwb.w5_link x where link_id=?", linkId);
+		return GenericUtil.isEmpty(l) ? "-":l.get(0).toString();
+	}
+	
+
+	@Transactional(propagation=Propagation.NEVER)
+	public String generateLinkFromUrl(String url) {
+		int ixp = url.indexOf('/');
+		if(ixp==-1)return null;
+		if(ixp==0) {
+			url = url.substring(1);
+			ixp = url.indexOf('/');
+
+		}
+		W5Project po = FrameworkCache.getProject(url.substring(0,ixp));
+		if(po==null)return null;
+		String murl = url.substring(ixp+1);
+		if(GenericUtil.isEmpty(murl) || murl.charAt(0)=='?')return null;
+		int ix = murl.indexOf(".r=");
+		if(ix>-1) {
+			int qi=ix+2;
+			for(;qi<murl.length();qi++)if(murl.charAt(qi)=='&'||murl.charAt(qi)=='#') {
+				break;
+			}
+			murl = murl.substring(0, ix) + (qi<murl.length() ? murl.substring(qi):"");
+		}
+		while(murl.endsWith("?") || murl.endsWith("&"))murl=murl.substring(0, murl.length()-1);
+		while(murl.endsWith("#/"))murl=murl.substring(0, murl.length()-2);
+				
+		if(GenericUtil.isEmpty(murl))return null;
+		
+		List l = dao.executeSQLQuery("select x.link_id from iwb.w5_link x where url=? and project_uuid=?", url, po.getProjectUuid());
+		if(!GenericUtil.isEmpty(l))return l.get(0).toString();
+		l = dao.executeSQLQuery("select 1 from iwb.w5_link x where project_uuid=? limit 1", po.getProjectUuid());
+		if(GenericUtil.isEmpty(l)) {
+			String normalized = Normalizer.normalize(po.getDsc(), Form.NFD);
+			String result = normalized.replaceAll("[^A-Za-z0-9]", "");
+			if(!GenericUtil.isEmpty(result)) {
+				if(result.length()>20)result = result.substring(0,20);
+				l = dao.executeSQLQuery("select 1 from iwb.w5_link x where link_id like ? limit 1", result+"%");
+				if(GenericUtil.isEmpty(l)) {
+					dao.executeUpdateSQLQuery("insert into iwb.w5_link (link_id, url, project_uuid) values (?,?,?)", result, "main.htm", po.getProjectUuid());
+					FrameworkCache.addUrlToLinkCache(result, po.getProjectUuid()+"/main.htm");
+					if(murl.equals("main.htm"))return result;
+				}
+			}
+		}
+		String linkId = GenericUtil.generateRandomAlphanumeric(10);
+		dao.executeUpdateSQLQuery("insert into iwb.w5_link (link_id, url, project_uuid) values (?,?,?)", linkId, murl, po.getProjectUuid());
+		FrameworkCache.addUrlToLinkCache(linkId, po.getProjectUuid()+"/"+murl);
+		return linkId;
 	}
 
 

@@ -194,7 +194,7 @@ public class QueryEngine {
 			case 9:
 			case 10:
 			case 12:
-			case 13:
+//			case 13:
 				queryResult.prepareTreeQuery(null);
 				break;
 			case 15:

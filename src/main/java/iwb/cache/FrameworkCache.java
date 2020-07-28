@@ -1577,4 +1577,13 @@ public class FrameworkCache {
 		return l;
 	}
 
+	final private static Map<String, String> linkMap = new HashMap<String,String>(); //wsId
+	
+	public static String getUrlFromLinkId(String linkId) {
+		return linkMap.get(linkId);
+	}
+	
+	public static String addUrlToLinkCache(String linkId, String url) {
+		return linkMap.put(linkId, url);
+	}
 }

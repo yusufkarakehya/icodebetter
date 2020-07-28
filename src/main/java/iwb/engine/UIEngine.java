@@ -140,6 +140,29 @@ public class UIEngine {
 			Map requestParams = new HashMap();
 			formResult = metadataLoader.getFormResult(scd, formId, 2, requestParams);
 			formResult.setUniqueId(GenericUtil.getNextId("fi"));
+			W5Form f = formResult.getForm();
+			if (f.get_moduleList() != null) {
+				for (W5FormModule m : f.get_moduleList())switch(m.getModuleType()){
+//					case	3://form
+					case	4://multi form
+						W5FormResult dfr = metadataLoader.getFormResult(scd, m.getObjectId(), 2, requestParams);
+						if(dfr!=null) {
+							if(formResult.getModuleFormMap()==null)formResult.setModuleFormMap(new HashMap());
+							formResult.getModuleFormMap().put(m.getObjectId(), dfr);
+						}
+					break;
+
+				}
+			}
+			for(W5FormCell fc:f.get_formCells())if(fc.getActiveFlag()!=0 && fc.getControlType()==97) {
+				W5FormResult dfr = metadataLoader.getFormResult(scd, fc.getLookupQueryId(), 2, requestParams);
+				if(dfr!=null) {
+					if(formResult.getModuleFormMap()==null)formResult.setModuleFormMap(new HashMap());
+					formResult.getModuleFormMap().put(-fc.getLookupQueryId(), dfr);
+				}
+
+			}
+			
 			return formResult;
 		} catch (Exception e) {
 			throw new IWBException("framework", "Form", formId, null, "[40," + formId + "]"
@@ -151,17 +174,14 @@ public class UIEngine {
 
 	public W5FormResult getFormResult(Map<String, Object> scd, int formId, int action,
 			Map<String, String> requestParams) {
-		if (
-		/* formId==0 && */ GenericUtil.uInt(requestParams.get("_tb_id")) != 0
-				&& GenericUtil.uInt(requestParams.get("_tb_pk")) != 0) { // _tb_id, and _tb_pk can also be used
+		
+		if(formId==0) {
 			W5Table t = FrameworkCache.getTable(scd, GenericUtil.uInt(requestParams.get("_tb_id")));
 			if (t == null) {
 				throw new IWBException("framework", "Table", GenericUtil.uInt(requestParams.get("_tb_id")), null,
 						LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_such_table"), null);
 			}
-			formId = GenericUtil.uInt(requestParams, "_fid");
-			if (formId == 0)
-				formId = t.getDefaultUpdateFormId();
+			formId = t.getDefaultUpdateFormId();
 			if (formId == 0) {
 				formId = metadataLoader.findFirstCRUDForm4Table(t.getTableId(), t.getProjectUuid());
 				if (formId == 0) {
@@ -169,10 +189,10 @@ public class UIEngine {
 							LocaleMsgCache.get2(0, (String) scd.get("locale"), "fw_no_form_for_table"), null);
 				}
 			}
-			requestParams.put(t.get_tableParamList().get(0).getDsc(), requestParams.get("_tb_pk"));
-			action = 1;
-			requestParams.put("a", "1");
+		//formId = GenericUtil.uInt(requestParams, "_fid");
 		}
+
+
 		W5FormResult formResult = null;
 		try {
 			formResult = metadataLoader.getFormResult(scd, formId, action, requestParams);
@@ -180,12 +200,21 @@ public class UIEngine {
 			formResult.setUniqueId(GenericUtil.getNextId("fi"));
 			if(GenericUtil.uInt(requestParams, "_viewMode")!=0)
 				formResult.setViewMode(true);
-
+			W5Form f = formResult.getForm();
+			
 			String projectId = FrameworkCache.getProjectId(scd, "40." + formId);
 			W5Table t = null;
-			switch (formResult.getForm().getObjectType()) {
+			switch (f.getObjectType()) {
 			case 2: // table
-				t = FrameworkCache.getTable(projectId, formResult.getForm().getObjectId()); // formResult.getForm().get_sourceTable();
+				t = FrameworkCache.getTable(projectId, f.getObjectId()); // form.get_sourceTable();
+				if(action<=1 && GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc()))==0 && 
+						(GenericUtil.uInt(requestParams.get("_tb_pk")) != 0 || GenericUtil.uInt(requestParams.get("_id")) != 0)) { // _tb_id, and _tb_pk can also be used
+					int oo = GenericUtil.uInt(requestParams.get("_tb_pk"));if(oo==0)oo= GenericUtil.uInt(requestParams.get("_id"));
+					requestParams.put(t.get_tableParamList().get(0).getDsc(), ""+oo);
+					action = 1;
+					requestParams.put("a", "1");
+				}
+				
 				switch (t.getAccessViewTip()) {
 				case 1:
 					if (t.getAccessViewUserFields() == null && !GenericUtil.accessControl(scd, t.getAccessViewTip(),
@@ -196,8 +225,8 @@ public class UIEngine {
 				}
 
 				acEngine.accessControl4FormTable(formResult, null);
-				if (formResult.getForm().get_moduleList() != null) {
-					for (W5FormModule m : formResult.getForm().get_moduleList()) if(m.getModuleViewType() == 0 || m.getModuleViewType() == action)
+				if (f.get_moduleList() != null) {
+					for (W5FormModule m : f.get_moduleList()) if(m.getModuleViewType() == 0 || m.getModuleViewType() == action)
 						switch(m.getModuleType()){
 						case	3://form
 						case	4://multi form
@@ -206,7 +235,7 @@ public class UIEngine {
 								newAction = action;
 							if (formResult.getModuleFormMap() == null)
 								formResult.setModuleFormMap(new HashMap());
-							W5FormResult dfr = getFormResult(scd, m.getObjectId(), newAction, requestParams);
+							W5FormResult dfr = getFormResult(scd, m.getObjectId(), newAction, new HashMap());
 							formResult.getModuleFormMap().put(m.getObjectId(), dfr);
 							if(action==1 && m.getModuleType() == 3 && !GenericUtil.isEmpty(t.get_tableChildList())) {//TODO: load detail records for form
 								for(W5TableChild tc:t.get_tableChildList()) if(tc.getRelatedTableId() == dfr.getForm().getObjectId()){
@@ -241,6 +270,7 @@ public class UIEngine {
 									if(!GenericUtil.isEmpty(list)) {
 										for(Map m2:list) {//converting PK to specialField 
 											m2.put("_id_"+pkFieldName, m2.get(pkFieldName));
+											m2.put("_id_", m2.get(pkFieldName));
 											m2.remove(pkFieldName);
 										}
 										if(dfr.getOutputFields()==null)dfr.setOutputFields(new HashMap());
@@ -254,11 +284,71 @@ public class UIEngine {
 						break;
 
 					}
+					for (W5FormCell fc : f.get_formCells()) if(fc.getControlType()==97){//detail-form-multi
+
+							if (formResult.getModuleFormMap() == null)
+								formResult.setModuleFormMap(new HashMap());
+							W5FormResult dfr = getFormResult(scd, fc.getLookupQueryId(), 2, new HashMap());
+							formResult.getModuleFormMap().put(-fc.getLookupQueryId(), dfr);
+							if(action==1 && !GenericUtil.isEmpty(t.get_tableChildList())) {//TODO: load detail records for form
+								for(W5TableChild tc:t.get_tableChildList()) if(tc.getRelatedTableId() == dfr.getForm().getObjectId()){
+									W5Table dt = FrameworkCache.getTable(scd, tc.getRelatedTableId());
+									StringBuilder sql = new StringBuilder();
+									String pkFieldName = dt.get_tableFieldList().get(0).getDsc();
+									Map paramMap = new HashMap();
+									sql.append("select x.").append(pkFieldName);
+									for(W5FormCell fc2:dfr.getForm().get_formCells()) if(fc2.getActiveFlag()!=0 && fc2.getControlType()>0 && fc2.getControlType()<90 && fc2.get_sourceObjectDetail()!=null){
+										W5TableField tf2 = (W5TableField)fc2.get_sourceObjectDetail();
+										if(tf2.getTabOrder()!=1)sql.append(", x.").append(tf2.getDsc());
+										if(fc2.getControlType()==71) {//file
+											if(FrameworkCache.getTable(scd, FrameworkSetting.customFileTableId)==null)
+												sql.append(", (select a.original_file_name from iwb.w5_file_attachment a where a.project_uuid='").append(scd.get("projectId")).append("' AND a.file_attachment_id=x.").append(tf2.getDsc()).append(") ").append(tf2.getDsc()).append("_qw_");
+											else 
+												sql.append(", (select a.dsc from x_file a where a.file_id=x.").append(tf2.getDsc()).append(") ").append(tf2.getDsc()).append("_qw_");
+											
+										}
+									}
+									sql.append(" from ").append(dt.getDsc()).append(" x where x.");
+									sql.append(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc()).append("=?");
+									if(tc.getRelatedStaticTableFieldId()!=0 && tc.getRelatedStaticTableFieldVal()!=0) {
+										paramMap.put(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc(), tc.getRelatedStaticTableFieldVal());
+										sql.append(" AND ").append(dt.get_tableFieldMap().get(tc.getRelatedStaticTableFieldId()).getDsc()).append("=").append(tc.getRelatedStaticTableFieldVal());
+									}			
+									List params = new ArrayList();
+									int param1 = GenericUtil.uInt(requestParams.get(t.get_tableParamList().get(0).getDsc())); 
+									params.add(param1);
+									paramMap.put(dt.get_tableFieldMap().get(tc.getRelatedTableFieldId()).getDsc(), param1);
+									if(dt.get_tableParamList().size()>0)for(W5TableParam tp2:dt.get_tableParamList())if(tp2.getSourceType()==2) {
+										sql.append(" AND x.").append(tp2.getExpressionDsc()).append("=?");
+										params.add(scd.get(tp2.getDsc()));
+									}
+									sql.append(" order by 1");
+
+									List<Map> list = dao.executeSQLQuery2Map(sql.toString(), params);
+									if(!GenericUtil.isEmpty(list)) {
+										for(Map m2:list) {//converting PK to specialField 
+											m2.put("_id_"+pkFieldName, m2.get(pkFieldName));
+											m2.put("_id_", m2.get(pkFieldName));
+											m2.remove(pkFieldName);
+										}
+										if(dfr.getOutputFields()==null)dfr.setOutputFields(new HashMap());
+										dfr.getOutputFields().put("list", list);
+
+									}
+									dfr.getOutputFields().put("paramMap", paramMap);
+
+								}
+									
+							}
+
+						break;
+
+					}
 				}
 				break;
 			case 5: // formByQuery:
 				formResult
-						.setQueryResult4FormCell(queryEngine.executeQuery(scd, formResult.getForm().getObjectId(), requestParams));
+						.setQueryResult4FormCell(queryEngine.executeQuery(scd, f.getObjectId(), requestParams));
 				formResult.setFormCellResults(new ArrayList());
 				for (Object[] d : formResult.getQueryResult4FormCell().getData()) {
 					W5FormCellHelper result = GenericUtil.getFormCellResultByQueryRecord(d);
@@ -268,7 +358,6 @@ public class UIEngine {
 				break;
 			}
 
-			W5Form f = formResult.getForm();
 			if (f.getObjectType() != 2 && (f.getObjectType()!=11 || action == 0))
 				action = 2; // eger table degilse sadece initializeForm olabilir
 
