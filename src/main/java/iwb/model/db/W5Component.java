@@ -170,7 +170,9 @@ public class W5Component implements java.io.Serializable, W5Base{
 		return projectUuid.hashCode() + 100*getComponentId();
 	}
 
-	@Column(name="lkp_component_type")
+/*	@Column(name="lkp_component_type") */
+	
+	@Transient
 	public short getLkpComponentType() {
 		return lkpComponentType;
 	}
