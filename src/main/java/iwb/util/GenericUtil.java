@@ -1527,6 +1527,9 @@ public class GenericUtil {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> getParameterMap(HttpServletRequest request) throws IOException {
+		if(request.getParameter("_qid")!=null && request.getParameter("_qid").startsWith("7025")){
+			int a = 5;
+		}
 		Map<String, String[]> m = request.getParameterMap();
 		Map<String, String> res = new HashMap<String, String>();
 		for (Map.Entry<String, String[]> e : m.entrySet()) {

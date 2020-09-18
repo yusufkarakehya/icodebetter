@@ -286,7 +286,7 @@ public class PreviewController implements InitializingBean {
 		else queryResult = service.executeQuery(scd, queryId, requestMap);
 
 		response.setContentType("application/json");
-		if(queryResult.getErrorMap().isEmpty() && queryResult.getQuery().getQuerySourceType()==1376 && queryResult.getQuery().getSqlFrom().equals("!"))
+		if(queryResult.getErrorMap().isEmpty() && queryResult.getQuery().getQuerySourceType()==1376 && queryResult.getQuery().getSqlFrom().startsWith("!"))
 			response.getWriter().write((String)queryResult.getExtraOutMap().get("_raw"));
 		else
 			response.getWriter().write(va.serializeQueryData(queryResult).toString());
