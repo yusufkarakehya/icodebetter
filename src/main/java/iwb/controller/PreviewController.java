@@ -81,7 +81,7 @@ import iwb.util.GenericUtil;
 import iwb.util.UserUtil;
 
 @Controller
-@RequestMapping("/preview")
+@RequestMapping({"/preview","/p"})
 public class PreviewController implements InitializingBean {
 	private static Logger logger = Logger.getLogger(PreviewController.class);
 

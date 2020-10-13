@@ -70,6 +70,11 @@ public class RestController implements InitializingBean {
 			throws ServletException, IOException{
 		request.setCharacterEncoding( "UTF-8" );
 		response.setCharacterEncoding( "UTF-8" );
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+		response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
 		try {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
 			String token = (String)request.getParameter("tokenKey");

@@ -90,7 +90,7 @@ public class FrameworkApplication {
 		if(GenericUtil.uInt(FrameworkSetting.argMap.get("metadata"))!=0) {
 			FrameworkSetting.systemStatus=0;
 			if(FrameworkSetting.projectId == null) FrameworkSetting.projectId = FrameworkSetting.devUuid;
-			vcsService.importProjectMetadata("http://code2.io/app/export/" + FrameworkSetting.projectId + ".zip");//"classpath:projects/"+FrameworkSetting.projectId+".zip"
+			vcsService.importProjectMetadata("http://app.code2.io/app/export/" + FrameworkSetting.projectId + ".zip");//"classpath:projects/"+FrameworkSetting.projectId+".zip"
 			FrameworkSetting.projectSystemStatus.put(FrameworkSetting.projectId, 0);
 			FrameworkSetting.metadata = true;
 		} else {
