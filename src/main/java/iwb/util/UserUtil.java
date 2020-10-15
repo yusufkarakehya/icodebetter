@@ -1572,9 +1572,33 @@ public class UserUtil {
 		int ix = uri.indexOf(prefix);
 		if(ix>-1){
 			pid = uri.substring(ix+prefix.length());
-			return pid.substring(0,pid.indexOf('/'));
+			pid = pid.substring(0,pid.indexOf('/'));
+			if(FrameworkSetting.projectName!=null && pid.equals(FrameworkSetting.projectName))
+				return FrameworkSetting.projectId;
+			return pid;
+		} else if(prefix.startsWith("preview")) {
+			prefix = "p/";
+			ix = uri.indexOf(prefix);
+			if(ix>-1){
+				pid = uri.substring(ix+prefix.length());
+				pid = pid.substring(0,pid.indexOf('/'));
+				if(FrameworkSetting.projectName!=null && pid.equals(FrameworkSetting.projectName))
+					return FrameworkSetting.projectId;
+				return pid;
+			}
 		}
 		return null;		
+		/*
+		String uri = request.getRequestURI();
+		String pid = null;
+		if(GenericUtil.isEmpty(prefix))prefix = "";
+		if(!prefix.endsWith("/"))prefix+="/";
+		int ix = uri.indexOf(prefix);
+		if(ix>-1){
+			pid = uri.substring(ix+prefix.length());
+			return pid.substring(0,pid.indexOf('/'));
+		}
+		return null;		*/
 	}
 	
 	public static Map<String, Object> getScd4PAppSpace(HttpServletRequest request){

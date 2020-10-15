@@ -78,7 +78,11 @@ public class FrameworkApplication {
 		
 		if(FrameworkSetting.argMap.get("timer")!=null)FrameworkSetting.localTimer=true;
 		
-		if(FrameworkSetting.argMap.get("project")!=null)FrameworkSetting.projectId=FrameworkSetting.argMap.get("project");
+		if(FrameworkSetting.argMap.get("project")!=null) {
+			FrameworkSetting.projectId=FrameworkSetting.argMap.get("project");
+			if(!FrameworkSetting.projectId.equals("1") && FrameworkSetting.argMap.get("projectName")!=null)
+				FrameworkSetting.projectName=FrameworkSetting.argMap.get("projectName");
+		}
 		
 
 		ConfigurableApplicationContext appContext = SpringApplication.run(FrameworkApplication.class, args);
