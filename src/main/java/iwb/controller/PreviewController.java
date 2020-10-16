@@ -1515,9 +1515,9 @@ public class PreviewController implements InitializingBean {
 					+ GenericUtil.stringToJS(file.getOriginalFilename()) + "\", \"fileUrl\": \"" + "sf/"
 					+ GenericUtil.stringToJS(file.getOriginalFilename()) + "?_fai=" + fa.getFileAttachmentId() + "\"}";
 		} catch (Exception e) {
-			if (true || FrameworkSetting.debug)
+			//if (true || FrameworkSetting.debug)
 				e.printStackTrace();
-			return "{ \"success\": false }";
+			return "{ \"success\": false, \"error\":\""+GenericUtil.stringToJS2(e.getMessage())+"\" }";
 		} 
 
 	}
