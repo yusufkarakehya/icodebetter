@@ -1273,7 +1273,7 @@ public class PreviewController implements InitializingBean {
 		} else  if (lfilePath.endsWith(".pdf"))
 			response.setContentType("application/pdf");
 		ServletOutputStream out = response.getOutputStream();
-		System.out.println("filePath: "+ filePath);
+		System.out.println(" filePath: "+ filePath);
 		try {
 			/*
 			 * if(fileAttachmentId<0)try { stream = new
