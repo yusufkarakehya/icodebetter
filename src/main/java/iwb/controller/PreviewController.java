@@ -1260,7 +1260,7 @@ public class PreviewController implements InitializingBean {
 
 			if(!fa.getSystemFileName().contains(File.separator))
 				filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + customizationId 
-				+ File.separator + "attachment" + File.separator + fa.getSystemFileName();
+				+ File.separator + scd.get("projectId") + File.separator + fa.getSystemFileName();
 			else 
 				filePath = fa.getSystemFileName();
 			
@@ -1273,6 +1273,7 @@ public class PreviewController implements InitializingBean {
 		} else  if (lfilePath.endsWith(".pdf"))
 			response.setContentType("application/pdf");
 		ServletOutputStream out = response.getOutputStream();
+		System.out.println("filePath: "+ filePath);
 		try {
 			/*
 			 * if(fileAttachmentId<0)try { stream = new
