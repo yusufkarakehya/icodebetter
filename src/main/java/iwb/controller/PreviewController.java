@@ -1257,8 +1257,8 @@ public class PreviewController implements InitializingBean {
 			
 			
 			String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
-
-			if(!fa.getSystemFileName().contains(FrameworkCache.getAppSettingStringValue(0, "file_local_path")))
+			System.out.println(" fa.getSystemFileName(): "+ fa.getSystemFileName());
+			if(FrameworkCache.getTable(fa.getProjectUuid(), FrameworkSetting.customFileTableId)!=null)//!fa.getSystemFileName().contains(FrameworkCache.getAppSettingStringValue(0, "file_local_path"))
 				filePath = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator + customizationId 
 				+ File.separator + scd.get("projectId") + File.separator + fa.getSystemFileName();
 			else 
