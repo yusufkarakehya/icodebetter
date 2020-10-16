@@ -1450,7 +1450,7 @@ public class PreviewController implements InitializingBean {
 
 		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
 		if(scd.containsKey("ulpath"))path+=File.separator + scd.get("ulpath");
-		else path += File.separator + scd.get("customizationId") + File.separator + "attachment";
+		else path += File.separator + scd.get("customizationId") + File.separator + scd.get("projectId");
 
 		File dirPath = new File(path);
 		if (!dirPath.exists()) {
