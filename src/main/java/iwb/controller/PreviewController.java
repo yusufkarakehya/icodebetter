@@ -1470,8 +1470,8 @@ public class PreviewController implements InitializingBean {
 							+ Math.round(maxFileSize / 1024) + " KB\"}";
 				fa.setFileTypeId(-998);// company picture upload etti
 			}
-			fa.setSystemFileName((scd.containsKey("ulpath")? path + File.separator:"")+fileId + "." + GenericUtil.strUTF2En(file.getOriginalFilename()));
-			file.transferTo(new File(path + File.separator + fa.getSystemFileName()));
+			fa.setSystemFileName((path + File.separator)+fileId + "." + GenericUtil.strUTF2En(file.getOriginalFilename()));
+			file.transferTo(new File(fa.getSystemFileName()));
 			fa.setOrijinalFileName(file.getOriginalFilename());
 			fa.setTableId(table_id);
 			fa.setTablePk(table_pk);
