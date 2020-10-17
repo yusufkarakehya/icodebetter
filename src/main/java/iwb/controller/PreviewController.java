@@ -1491,7 +1491,7 @@ public class PreviewController implements InitializingBean {
 				requestMap.put("table_id", ""+fa.getTableId());
 				requestMap.put("table_pk", fa.getTablePk());
 				requestMap.put("dsc", fa.getOrijinalFileName());
-				requestMap.put("system_path", path + File.separator + fa.getSystemFileName());
+				requestMap.put("system_path", fa.getSystemFileName());
 				requestMap.put("file_size", ""+fa.getFileSize());
 				requestMap.put("upload_user_id", ""+fa.getUploadUserId());
 				W5FormResult fr = service.postForm4Table(scd, 10230, 2, requestMap, "");
