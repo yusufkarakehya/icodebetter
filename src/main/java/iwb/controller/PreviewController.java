@@ -179,7 +179,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxChangeChatStatus");
 		response.setContentType("application/json");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		int chatStatusTip = GenericUtil.uInt(request, "chatStatusTip");
 		response.getWriter().write("{\"success\":" + UserUtil.updateChatStatus(scd, chatStatusTip) + "}");
 		response.getWriter().close();
@@ -192,7 +192,7 @@ public class PreviewController implements InitializingBean {
 		if(gridId==0)gridId = -GenericUtil.uInt(request, "_qid");
 		logger.info("hndAjaxQueryData4Stat(" + gridId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		Map m = service.executeQuery4Stat(scd, gridId, GenericUtil.getParameterMap(request));
@@ -205,7 +205,7 @@ public class PreviewController implements InitializingBean {
 		int gridId = GenericUtil.uInt(request, "_gid");
 		logger.info("hndAjaxQueryData4StatTree(" + gridId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		Map m = service.executeQuery4StatTree(scd, gridId, GenericUtil.getParameterMap(request));
@@ -267,7 +267,7 @@ public class PreviewController implements InitializingBean {
 				scd.put("mobile", session.getAttribute("mobile"));
 			scd.put("customizationId", session.getAttribute("customizationId"));
 		} else {
-			scd = UserUtil.getScd4Preview(request, "scd-dev", true);// TODO not auto
+			scd = UserUtil.getScd4Preview(request, "scd-dev", false);// TODO not auto
 		}
 
 		ViewAdapter va = getViewAdapter(scd, request);
@@ -301,7 +301,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxApproveRecord");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		if (!FrameworkSetting.workflow) {
 			response.setContentType("application/json");
 			response.getWriter().write("{\"success\":false}");
@@ -356,7 +356,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxGetTabNotifications");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
 		int userId = (Integer) scd.get("userId");
@@ -373,7 +373,7 @@ public class PreviewController implements InitializingBean {
 	@RequestMapping("/*/ajaxPostChatMsg")
 	public void hndAjaxPostChatMsg(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		logger.info("hndAjaxPostChatMsg");
 		response.setContentType("application/json");
 		String msg = request.getParameter("msg");
@@ -412,7 +412,7 @@ public class PreviewController implements InitializingBean {
 	@RequestMapping("/*/ajaxNotifyChatMsgRead")
 	public void hndAjaxNotifyChatMsgRead(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		logger.info("hndAjaxNotifyChatMsgRead");
 		int userId = GenericUtil.uInt(request, "u");
 		int msgId = GenericUtil.uInt(request, "m");
@@ -438,7 +438,7 @@ public class PreviewController implements InitializingBean {
 		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndAjaxPostForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int action = GenericUtil.uInt(request, "a");
 		Map<String,String> requestMap = GenericUtil.getParameterMap(request);
@@ -480,7 +480,7 @@ public class PreviewController implements InitializingBean {
 		
 		Map<String, Object> scd = null;
 		try {
-			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		} catch(Exception ee) {
 			scd = null;
 		}
@@ -500,7 +500,7 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxPostConversionGridMulti(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxPostConversionGridMulti");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		int conversionCount = GenericUtil.uInt(request, "_ccnt");
@@ -529,7 +529,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxPostEditGrid");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		Map<String, String> requestMap = GenericUtil.getParameterMap(request);
@@ -586,7 +586,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxBookmarkForm");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int action = GenericUtil.uInt(request, "a");
@@ -607,7 +607,7 @@ public class PreviewController implements InitializingBean {
 		String pid = UserUtil.getProjectId(request, "preview");
 		String newScdKey = "preview-"+pid;
 		if(request.getSession(false)!=null && request.getSession(false).getAttribute(newScdKey)!=null)
-			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		else {
 			scd = new HashMap();
 			W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
@@ -651,7 +651,7 @@ public class PreviewController implements InitializingBean {
 		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndGetFormSimple(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -666,7 +666,7 @@ public class PreviewController implements InitializingBean {
 	public void hndAjaxReloadFormCell(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxReloadFormCell");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		int fcId = GenericUtil.uInt(request, "_fcid");
 		String webPageId = request.getParameter(".w");
 		String tabId = request.getParameter(".t");
@@ -684,7 +684,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxFeed");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 
@@ -718,7 +718,7 @@ public class PreviewController implements InitializingBean {
 		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndShowForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -760,7 +760,7 @@ public class PreviewController implements InitializingBean {
 		int formId = getLastId(request.getRequestURI());
 		logger.info("hndShowForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		W5FormResult fr = null;
 		W5Form f = FrameworkCache.getForm(scd, formId);
@@ -780,7 +780,7 @@ public class PreviewController implements InitializingBean {
 		if(formId==0) formId = getLastId(request.getRequestURI());
 		logger.info("hndShowMForm(" + formId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int action = GenericUtil.uInt(request, "a");
 		W5FormResult formResult = service.getFormResult(scd, formId, action, GenericUtil.getParameterMap(request));
@@ -868,7 +868,7 @@ public class PreviewController implements InitializingBean {
 		String projectId = UserUtil.getProjectId(request,"preview/");
 		W5Project po = FrameworkCache.getProject(projectId,"Wrong Project");
 		if(po.getAuthenticationFuncId()==0)try{
-			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 			if(scd!=null)
 				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
 			else 
@@ -1010,7 +1010,7 @@ public class PreviewController implements InitializingBean {
 		
 		Map<String, Object> scd = null;
 		try{
-			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		} catch(Exception e){scd=null;}
 		if(scd==null){
 			response.sendRedirect("login.htm");
@@ -1040,7 +1040,7 @@ public class PreviewController implements InitializingBean {
 		if(pageId==0) pageId = getLastId(request.getRequestURI());
 		logger.info("hndShowPage(" + pageId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 
@@ -1062,7 +1062,7 @@ public class PreviewController implements InitializingBean {
 		int gridId = getLastId(request.getRequestURI());
 		logger.info("hndShowGrid(" + gridId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		W5GridResult gridResult = service.getGridResult(scd, gridId);
 
@@ -1082,7 +1082,7 @@ public class PreviewController implements InitializingBean {
 		int listId = GenericUtil.uInt(request, "_lid");
 		logger.info("hndShowMList(" + listId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		M5ListResult listResult = service.getMListResult(scd, listId, GenericUtil.getParameterMap(request));
 
@@ -1100,7 +1100,7 @@ public class PreviewController implements InitializingBean {
 		int pageId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndShowMPage(" + pageId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		W5PageResult pageResult = service.getPageResult(scd, pageId, GenericUtil.getParameterMap(request));
 
@@ -1116,7 +1116,7 @@ public class PreviewController implements InitializingBean {
 	public ModelAndView hndGridReport(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndGridReport");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int gridId = GenericUtil.uInt(request, "_gid");
 		String gridColumns = request.getParameter("_columns");
@@ -1156,7 +1156,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndFileDownload");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		String customizationId = String.valueOf((scd.get("customizationId") == null) ? 0 : scd.get("customizationId"));
@@ -1232,7 +1232,7 @@ public class PreviewController implements InitializingBean {
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
-			scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			scd = UserUtil.getScd4Preview(request, "scd-dev", FrameworkCache.getAppSettingIntValue(0, "file_view_sessionless")!=0);
 			String spi = request.getRequestURI();
 			String startStr = "/preview/" + scd.get("projectId") + "/sf/pic";
 			if (spi!=null && spi.startsWith(startStr) && spi.contains(".")) {
@@ -1250,7 +1250,7 @@ public class PreviewController implements InitializingBean {
 		if (fileAttachmentId == 1 || fileAttachmentId == 2) { // male or female
 			filePath = fileAttachmentId == 2 ? AppController.womanPicPath : AppController.manPicPath;
 		} else {
-			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+			if (scd == null)scd = UserUtil.getScd4Preview(request, "scd-dev", FrameworkCache.getAppSettingIntValue(0, "file_view_sessionless")!=0);
 			W5FileAttachment fa = fileAttachmentId>0?service.loadFile(scd, fileAttachmentId):null;
 			if (fa == null) { // not found TODO
 				throw new IWBException("validation", "File Attachment", fileAttachmentId, null,
@@ -1316,7 +1316,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndShowFormByQuery");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		int formId = GenericUtil.uInt(request, "_fid");
 		int queryId = GenericUtil.uInt(request, "_qid");
@@ -1336,7 +1336,7 @@ public class PreviewController implements InitializingBean {
 	public void hndGetTableRecordInfo(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndGetTableRecordInfo");
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		int tableId = GenericUtil.uInt(request, "_tb_id");
 		int tablePk = GenericUtil.uInt(request, "_tb_pk");
 		W5TableRecordInfoResult r = service.getTableRecordInfo(scd, tableId, tablePk);
@@ -1352,7 +1352,7 @@ public class PreviewController implements InitializingBean {
 			@RequestParam("table_pk") String table_pk, @RequestParam("table_id") Integer table_id,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("multiFileUpload");
-		// Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		// Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path") + File.separator
 				+ customizationId + File.separator + "attachment";
 
@@ -1388,7 +1388,7 @@ public class PreviewController implements InitializingBean {
 						requestMap.put("system_path", path + File.separator + fa.getSystemFileName());
 						requestMap.put("file_size", ""+fa.getFileSize());
 						requestMap.put("upload_user_id", ""+fa.getUploadUserId());
-						Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+						Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 						W5FormResult fr = service.postForm4Table(scd, 10230, 2, requestMap, "");
 						if(fr.getErrorMap().isEmpty())
 							fa.setFileAttachmentId(GenericUtil.uInt(fr.getOutputFields().get("file_id")));
@@ -1449,7 +1449,7 @@ public class PreviewController implements InitializingBean {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("singleFileUpload");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", FrameworkCache.getAppSettingIntValue(0, "file_upload_sessionless")!=0);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
 		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path");
@@ -1533,7 +1533,7 @@ public class PreviewController implements InitializingBean {
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.info("singleFileUpload4Webix");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 		Map<String, String> requestParams = GenericUtil.getParameterMap(request);
 
 		String path = FrameworkCache.getAppSettingStringValue(0, "file_local_path")
@@ -1626,7 +1626,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		logger.info("hndAjaxSendFormSmsMail");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		int smsMailId = GenericUtil.uInt(request, "_fsmid");
@@ -1644,7 +1644,7 @@ public class PreviewController implements InitializingBean {
 			HttpServletResponse response)
 			throws ServletException, IOException {
 		logger.info("hndAjaxCallWs"); 
-	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+	    Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 	    
 		Map m =service.REST(scd, request.getParameter("serviceName"), GenericUtil.getParameterMap(request));
 		if(m!=null) {
@@ -1678,7 +1678,7 @@ public class PreviewController implements InitializingBean {
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4Pivot(" + tableId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4Pivot(scd, tableId, GenericUtil.getParameterMap(request))));
@@ -1691,7 +1691,7 @@ public class PreviewController implements InitializingBean {
 		int tableId = GenericUtil.uInt(request, "_tid");
 		logger.info("hndAjaxQueryData4DataList(" + tableId + ")");
 
-		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
+		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", false);
 
 		response.setContentType("application/json");
 		response.getWriter().write(GenericUtil.fromListToJsonString2Recursive(service.executeQuery4DataList(scd, tableId, GenericUtil.getParameterMap(request))));
@@ -1703,7 +1703,7 @@ public class PreviewController implements InitializingBean {
 	public void hndComponent(
 			HttpServletRequest request,
 			HttpServletResponse response) throws IOException{
-		logger.info("hndJasperReport"); 
+		logger.info("hndComponent"); 
 		Map<String, Object> scd = UserUtil.getScd4Preview(request, "scd-dev", true);
     	String uri = request.getRequestURI();
     	if(uri.endsWith(".css")){

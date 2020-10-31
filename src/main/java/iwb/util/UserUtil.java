@@ -1499,7 +1499,7 @@ public class UserUtil {
 		return scd;
 	}
 	
-	public static Map<String, Object> getScd4Preview(HttpServletRequest request, String scdKey, boolean onlineCheck){
+	public static Map<String, Object> getScd4Preview(HttpServletRequest request, String scdKey, boolean createTemporarySession){
 		Map<String, Object> scd = null; //only in developer mode
 		String pid = getProjectId(request, "preview");
 		W5Project po = FrameworkCache.getProject(pid,"Wrong Project");
@@ -1556,7 +1556,7 @@ public class UserUtil {
 			}
 		}
 		if(newScd!=null)return newScd;
-		if(po.getAuthenticationFuncId()==0){
+		if(po.getAuthenticationFuncId()==0 || createTemporarySession){
 			newScd=new HashMap<String, Object>();
 			newScd.put("customizationId",po.getCustomizationId());newScd.put("ocustomizationId",po.getCustomizationId());newScd.put("userId",10);newScd.put("completeName","XXX");
 			newScd.put("projectId",po.getProjectUuid());newScd.put("projectName", po.getDsc());newScd.put("roleId",10);newScd.put("roleDsc", "XXX Role");
@@ -1568,9 +1568,12 @@ public class UserUtil {
 			newScd.put("chat", 1);newScd.put("chatStatusTip", 1);
 			newScd.put("userTip",po.get_defaultRoleGroupId());
 			newScd.put("path", "../");
-			if(session==null)session = request.getSession(true);
 			newScd.put("sessionId", "nosession");
-			session.setAttribute(newScdKey, newScd);
+			if(session==null && !createTemporarySession) {
+				session = request.getSession(true);
+				session.setAttribute(newScdKey, newScd);
+			}
+
 			return newScd;
 		}
 		
