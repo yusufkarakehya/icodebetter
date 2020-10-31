@@ -505,6 +505,7 @@ public class UserUtil {
 	//projectId, key, userId, webPageId
 	final private static Map<String, Map<Integer, Map<String, SyncTabMapHelper3>>> gridSyncMap3 = new HashMap<String, Map<Integer, Map<String, SyncTabMapHelper3>>>();
 	//projectId, tableId, tabId, 
+	final public static String TOKEN_STRING = "tokenKey";
 	
 
 	public static void clearDevices(){

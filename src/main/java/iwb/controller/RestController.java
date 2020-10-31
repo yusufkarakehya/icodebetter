@@ -78,7 +78,6 @@ public class RestController implements InitializingBean {
 
 		try {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
-			String token = (String)request.getParameter("tokenKey");
 			String projectId=u[2]; 
 			W5Project po = FrameworkCache.getProject(projectId);
 			if(po==null) {
@@ -107,7 +106,7 @@ public class RestController implements InitializingBean {
 				W5GlobalFuncResult dfr = new W5GlobalFuncResult(-1);dfr.setResultMap(new HashMap());dfr.setErrorMap(new HashMap());
 				List<W5GlobalFuncParam> arl = new ArrayList();
 				dfr.setGlobalFunc(new W5GlobalFunc());dfr.getGlobalFunc().set_dbFuncParamList(arl);
-				arl.add(new W5GlobalFuncParam("tokenKey"));arl.add(new W5GlobalFuncParam("errorMsg"));
+				arl.add(new W5GlobalFuncParam(UserUtil.TOKEN_STRING));arl.add(new W5GlobalFuncParam("errorMsg"));
 //				W5WsServerMethod wsm = wss.get_methods().get(0);
 				// 4 success 5 errorMsg 6 userId 7 expireFlag 8 smsFlag 9 roleCount
 				boolean success = GenericUtil.uInt(result.getResultMap().get("success")) != 0;
@@ -137,7 +136,7 @@ public class RestController implements InitializingBean {
 					//String tokenKey = ;
 					String sessionStr = GenericUtil.fromMapToJsonString2Recursive(scd);
 					String tokenKey= FrameworkSetting.jwt ? JWTUtil.createJWT(userId+"", sessionStr): EncryptionUtil.encryptAES(sessionStr);
-					dfr.getResultMap().put("tokenKey", tokenKey);
+					dfr.getResultMap().put(UserUtil.TOKEN_STRING, tokenKey);
 					response.getWriter().write("{\"success\":true,\"token\":\""+tokenKey+"\",\"session\":" + sessionStr+"}"); // hersey duzgun
 					
 //					response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
@@ -172,6 +171,7 @@ public class RestController implements InitializingBean {
 			        }
 			        scd=JWTUtil.decodeJWT(header.substring(JWTUtil.TOKEN_PREFIX.length()));
 				} else {
+					String token = (String)request.getParameter(UserUtil.TOKEN_STRING);
 					if(!GenericUtil.isEmpty(token)) {
 						token = EncryptionUtil.decryptAES(token);
 						if(!GenericUtil.isEmpty(token)) try{
@@ -271,7 +271,7 @@ public class RestController implements InitializingBean {
 		try {
 			String[] u = request.getRequestURI().replace('/', ',').split(",");
 			Map<String, String> requestParams = GenericUtil.getParameterMap(request);
-			String token = requestParams.get("tokenKey");
+			String token = requestParams.get(UserUtil.TOKEN_STRING);
 			String projectId=u[2];
 			W5Project po = FrameworkCache.getProject(projectId);
 			if(po==null) {
@@ -339,7 +339,7 @@ public class RestController implements InitializingBean {
 			}else switch(wsm.getObjectType()){
 			case	0:case 1:case 2:case 3://TODO
 				if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1")) {
-					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, FrameworkSetting.jwt ? JWTUtil.HEADER_STRING:UserUtil.TOKEN_STRING, (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
 					lwsmp.add(tokenKey);
 				}
 				W5FormResult fr=(W5FormResult)o;
@@ -369,7 +369,7 @@ public class RestController implements InitializingBean {
 					break;
 				}
 				if(dfr.getGlobalFunc().getGlobalFuncId()!=3 && (GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside(wsm.getAccessSourceTypes(), "1"))) {
-					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, FrameworkSetting.jwt ? JWTUtil.HEADER_STRING:UserUtil.TOKEN_STRING, (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
 					lwsmp.add(tokenKey);
 				}
 
@@ -383,7 +383,7 @@ public class RestController implements InitializingBean {
 				if(!GenericUtil.isEmpty(wsm.get_params())) {
 					lwsmp.addAll(wsm.get_params());
 				} else {
-					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, "tokenKey", (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
+					W5WsServerMethodParam tokenKey =new W5WsServerMethodParam(-998, FrameworkSetting.jwt ? JWTUtil.HEADER_STRING:UserUtil.TOKEN_STRING, (short)1);tokenKey.setOutFlag((short)0);tokenKey.setNotNullFlag((short)1);
 					lwsmp.add(tokenKey);
 					lwsmp.add(new W5WsServerMethodParam(-999, "data", (short)10));
 					for(W5QueryParam qp:qr.getQuery().get_queryParams())if(qp.getSourceType()==1){
@@ -414,7 +414,8 @@ public class RestController implements InitializingBean {
 		
 //			buf.append("\n<request>");
 			for(W5WsServerMethodParam wsmp:wsm.get_params())if(wsmp.getOutFlag()==0 && wsmp.getParentWsMethodParamId()==0){
-				buf.append("\n{\"in\":\"formData\"").append(wsmp.getNotNullFlag()==0 ? "":" ,\"required\":true").append(",\"name\":\"")
+				buf.append("\n{\"in\":\"").append(FrameworkSetting.jwt && wsmp.getWsServerMethodParamId()==-998 ? "header":(GenericUtil.hasPartInside2("1,3", wsm.getDataAcceptTip()) ?"formData":"body"))
+					.append("\"").append(wsmp.getNotNullFlag()==0 ? "":" ,\"required\":true").append(",\"name\":\"")
 				.append(wsmp.getDsc()).append("\",\"type\":\"");
 				buf.append(elementTypes[wsmp.getParamType()]);
 				buf.append("\"},");

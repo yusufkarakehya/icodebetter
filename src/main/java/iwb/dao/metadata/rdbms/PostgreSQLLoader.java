@@ -78,6 +78,7 @@ import iwb.model.result.W5PageResult;
 import iwb.model.result.W5QueryResult;
 import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
+import iwb.util.JWTUtil;
 import iwb.util.NashornUtil;
 import iwb.util.UserUtil;
 
@@ -1553,7 +1554,7 @@ public class PostgreSQLLoader extends BaseDAO implements MetadataLoader {
 					if (wsm.get_params().isEmpty())
 						wsm.set_params(null);
 					else if (po.getAuthenticationFuncId() != 0) {
-						W5WsServerMethodParam tokenKey = new W5WsServerMethodParam(-998, "tokenKey", (short) 1);
+						W5WsServerMethodParam tokenKey = new W5WsServerMethodParam(-998, FrameworkSetting.jwt ? JWTUtil.HEADER_STRING:UserUtil.TOKEN_STRING, (short) 1);
 						tokenKey.setOutFlag((short) 0);
 						tokenKey.setNotNullFlag((short) 1);
 						wsm.get_params().add(0, tokenKey);
