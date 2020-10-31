@@ -144,6 +144,7 @@ public class FrameworkSetting {
 	final public static String defaultPasswordMask = "**********";
 	public static boolean logVcs = true;
 	public static String projectName = null;
+	public static boolean jwt = true;
 	final public static int customFileTableId = 6973;
 	final public static int customCommentTableId = 6975;
 	final public static int customWorkflowTableId = 6976;

@@ -45,6 +45,7 @@ import iwb.service.FrameworkService;
 import iwb.util.EncryptionUtil;
 import iwb.util.GenericUtil;
 import iwb.util.HttpUtil;
+import iwb.util.JWTUtil;
 import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
@@ -133,9 +134,11 @@ public class RestController implements InitializingBean {
 						return;
 					}
 					scd.put("locale", xlocale);
-					String tokenKey = EncryptionUtil.encryptAES(GenericUtil.fromMapToJsonString2Recursive(scd));
+					//String tokenKey = ;
+					String sessionStr = GenericUtil.fromMapToJsonString2Recursive(scd);
+					String tokenKey= FrameworkSetting.jwt ? JWTUtil.createJWT(userId+"", sessionStr): EncryptionUtil.encryptAES(sessionStr);
 					dfr.getResultMap().put("tokenKey", tokenKey);
-					response.getWriter().write("{\"success\":true,\"token\":\""+tokenKey+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
+					response.getWriter().write("{\"success\":true,\"token\":\""+tokenKey+"\",\"session\":" + sessionStr+"}"); // hersey duzgun
 					
 //					response.getWriter().write("{\"success\":true,\"token\":\""+UserUtil.generateTokenFromScd(scd, 0, request.getRemoteAddr(), 24 * 60 * 60 * 1000)+"\",\"session\":" + GenericUtil.fromMapToJsonString2(scd)+"}"); // hersey duzgun
 	
@@ -162,17 +165,25 @@ public class RestController implements InitializingBean {
 			
 			Map<String, Object> scd = null;
 			if(GenericUtil.isEmpty(wsm.getAccessSourceTypes()) || GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "1")){
-				if(!GenericUtil.isEmpty(token)) {
-					token = EncryptionUtil.decryptAES(token);
-					if(!GenericUtil.isEmpty(token)) try{
-						scd = GenericUtil.fromJSONObjectToMap(new JSONObject(token));
-					} catch(Exception ee) {
-						if(FrameworkSetting.debug)ee.printStackTrace();
-						throw new IWBException("session","Invalid.Token",0,null, "No valid token: " + ee.getMessage(), ee);
+				if(FrameworkSetting.jwt) {
+					String header = request.getHeader(JWTUtil.HEADER_STRING);
+			        if (header == null || !header.startsWith(JWTUtil.TOKEN_PREFIX)) {
+			        	throw new IWBException("session","Invalid.Token",0,null, "Token is required", null);
+			        }
+			        scd=JWTUtil.decodeJWT(header.substring(JWTUtil.TOKEN_PREFIX.length()));
+				} else {
+					if(!GenericUtil.isEmpty(token)) {
+						token = EncryptionUtil.decryptAES(token);
+						if(!GenericUtil.isEmpty(token)) try{
+							scd = GenericUtil.fromJSONObjectToMap(new JSONObject(token));
+						} catch(Exception ee) {
+							if(FrameworkSetting.debug)ee.printStackTrace();
+							throw new IWBException("session","Invalid.Token",0,null, "No valid token: " + ee.getMessage(), ee);
+						}
 					}
-				}
-				if(!GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "6") && GenericUtil.isEmpty(scd)){
-					throw new IWBException("session","No Session",0,null, "No valid token", null);
+					if(!GenericUtil.hasPartInside2(wsm.getAccessSourceTypes(), "6") && GenericUtil.isEmpty(scd)){
+						throw new IWBException("session","No Session",0,null, "No valid token", null);
+					}
 				}
 			}
 			if(scd==null){
