@@ -1507,6 +1507,17 @@ public class UserUtil {
 		if(FrameworkSetting.projectSystemStatus.get(pid)!=0){
 			throw new IWBException("framework","System Suspended",0,null, "System Suspended. Please wait", null);
 		}
+		if(FrameworkSetting.jwt) {
+			String header = request.getHeader(JWTUtil.HEADER_STRING);
+	        if (header == null || !header.startsWith(JWTUtil.TOKEN_PREFIX)) {
+	        	//throw new IWBException("session","Invalid.Token",0,null, "Token is required", null);
+	        	//throw new IWBException("session","No Session",0,null, "No valid session", null);
+	        } else {
+		        scd=JWTUtil.decodeJWT(header.substring(7));
+		        return scd;
+	        }
+		}
+		
 		String newScdKey = "preview-"+pid;
 
 		HttpSession session = request.getSession(false);

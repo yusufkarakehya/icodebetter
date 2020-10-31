@@ -78,6 +78,7 @@ import iwb.report.RptPdfRenderer;
 import iwb.service.FrameworkService;
 import iwb.timer.Action2Execute;
 import iwb.util.GenericUtil;
+import iwb.util.JWTUtil;
 import iwb.util.UserUtil;
 
 @Controller
@@ -952,7 +953,9 @@ public class PreviewController implements InitializingBean {
 				session.setAttribute(scdKey, scd);
 
 //				UserUtil.onlineUserLogin(scd, request.getRemoteAddr(), session.getId(), (short) 0, request.getParameter(".w"));
-				response.getWriter().write("{\"success\":true,\"session\":" + GenericUtil.fromMapToJsonString2(scd)); // hersey duzgun
+				String sessionStr =  GenericUtil.fromMapToJsonString2(scd);
+				response.getWriter().write("{\"success\":true,\"session\":" +sessionStr); // hersey duzgun
+				if(FrameworkSetting.jwt)response.getWriter().write(",\"token\":\""+ JWTUtil.createJWT(userId+"", sessionStr)+"\"");
 			}
 
 			response.getWriter().write("}");
