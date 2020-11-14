@@ -361,6 +361,8 @@ public class W5WorkflowStep implements java.io.Serializable, W5Base {
     a.onReturnNotificationIds = this.onReturnNotificationIds;
     a.onRejectNotificationIds = this.onRejectNotificationIds;
     a.onEscalationNotificationIds = this.onEscalationNotificationIds;
+    
+    a.approvalSql = this.approvalSql;
     return a;
   }
 

@@ -819,10 +819,11 @@ public class W5QueryResult implements W5MetaResult{
 			sqlWhere.append(")");
 		}
 		
-		if(mainTable!=null){
+		if(mainTable!=null && FrameworkSetting.workflow){
 			String pkField = mainTable.get_tableFieldList().get(0).getDsc();
+
 			boolean bwf = false;
-			if(!GenericUtil.isEmpty(mainTable.get_approvalMap())) {
+			if(FrameworkSetting.workflowSqlWhere && !GenericUtil.isEmpty(mainTable.get_approvalMap())) {
 				W5Workflow wf = mainTable.get_approvalMap().values().iterator().next();
 
 				for(W5WorkflowStep wfs:wf.get_approvalStepList()) if(!GenericUtil.isEmpty(wfs.getApprovalSql())){
@@ -843,7 +844,7 @@ public class W5QueryResult implements W5MetaResult{
 			}
 			
 			//workflow row based security
-			if(FrameworkSetting.workflow && mainTable.get_hasApprovalViewControlFlag()!=0){
+			if(mainTable.get_hasApprovalViewControlFlag()!=0){
 				
 				if(bwf) {
 					sqlWhere.append(" else ");
@@ -862,6 +863,7 @@ public class W5QueryResult implements W5MetaResult{
 				
 			}
 			if(bwf) {
+				if(mainTable.get_hasApprovalViewControlFlag()==0)sqlWhere.append(" else 1=1");
 				sqlWhere.append(" end ");
 			}
 			//approval_status var mi?
@@ -877,9 +879,6 @@ public class W5QueryResult implements W5MetaResult{
 					sqlParams.add(query.getSourceObjectId());
 				}
 			}
-			
-
-			
 		}
 
 		
