@@ -3888,7 +3888,7 @@ public class VcsService {
 
 			} else if(importedProjectId.equals(FrameworkSetting.fileUuid)){
 				List l = dao.executeSQLQuery("select max(file_attachment_id) from iwb.w5_file_attachment x where x.table_id!=336 AND x.project_uuid=?", projectId);
-				if(!GenericUtil.isEmpty(l)) {
+				if(false && !GenericUtil.isEmpty(l)) {
 					dao.executeUpdateSQLQuery("insert into x_file(file_id, table_id, table_pk, dsc, system_path, upload_dttm, upload_user_id, file_size, lkp_file_type) "+
 							" select file_attachment_id, table_id, table_pk::integer, original_file_name, system_file_name, upload_dttm, upload_user_id, file_size, case when file_type_id>0 then file_type_id else null end from iwb.w5_file_attachment x where x.table_id!=336 AND x.project_uuid=?", projectId);
 					dao.executeUpdateSQLQuery("SELECT setval('seq_file', ?, true);", l.get(0));

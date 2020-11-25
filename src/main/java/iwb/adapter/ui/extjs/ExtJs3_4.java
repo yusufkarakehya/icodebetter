@@ -1308,6 +1308,11 @@ public class ExtJs3_4 implements ViewAdapter {
 				fr.getFormId());
 //		if (liveSyncRecord)
 		s.append(",id:'").append(fr.getUniqueId()).append("'");
+		if(fr.getForm().getObjectType()==2 && fr.getAction()==1) {
+			for(W5FormCellHelper fcr:fr.getFormCellResults())if(fcr!=null && fcr.getFormCell()!=null && fcr.getFormCell().getControlType()==71 && !GenericUtil.isEmpty(fcr.getValue())) {
+				fr.getRequestParams().put(fcr.getFormCell().getDsc(), fcr.getValue());
+			}
+		}
 		s.append(",baseParams:")
 				.append(GenericUtil.fromMapToJsonString(fr
 						.getRequestParams()))
@@ -3730,13 +3735,32 @@ public class ExtJs3_4 implements ViewAdapter {
 			return buf.append("})");
 		case	71://file upload
 			buf.setLength(0);
-			buf.append("new Ext.ux.form.FileUploadField({fieldLabel:'").append(fieldLabel).append("', name: '").append(cellDsc).append("', buttonText: 'Browse'");
+			buf.append("new Ext.ux.form.FileUploadField({fieldLabel:'").append(fieldLabel).append("', name: '").append(cellDsc).append("', buttonText: 'Browse', listeners:{fileselected:function(ax){   let formData = new FormData();\r\n" + 
+					"\r\n" + 
+					"   formData.append(\"file\", ax.fileInput.dom.files[0]);\r\n" + 
+					"   formData.append('table_id', getForm.crudTableId||0);\r\n" + 
+					"   formData.append('table_pk', getForm.tmpId || getPkValue(getForm.pk)||0);\r\n" + 
+					"   try {\r\n" + 
+					"      fetch('upload.form', { method: \"POST\", body: formData })\r\n" + 
+					"         .then(response => response.json())\r\n" + 
+					"         .then(data => {\r\n" + 
+					"            console.log('HTTP response code:', data);\r\n" + 
+					"            if(data.success){\r\n" + 
+					"               mf.baseParams."+cellDsc+"=data.fileId;\r\n" + 
+					"               Ext.infoMsg.msg('succes', 'File Uploaded: ' + data.fileName); \r\n" + 
+					"            }\r\n" + 
+					"         });\r\n" + 
+					"\r\n" + 
+					"   } catch (e) {\r\n" + 
+					"      console.log('Huston we have problem...:', e);\r\n" + 
+					"   }}}");
 			if (fc.getControlWidth() > 0)buf.append(",width:").append(fc.getControlWidth());
 			if (fc.getNrdType() != 0)buf.append(",disabled:true");
 			if (notNull)buf.append(",allowBlank:false");
 			if (fc.getExtraDefinition() != null && fc.getExtraDefinition().length() > 1)buf.append(fc.getExtraDefinition());
 			if(formResult!=null && formResult.getUniqueId()!=null)
 				buf.append(",id:'").append(formResult.getUniqueId()).append("-").append(fc.getFormCellId()).append("'");
+			if(!GenericUtil.isEmpty(value))buf.append(",hiddenValue:").append(value);
 			return buf.append("})");
 		case 24:// treecombo (query lookup) remote
 			buf.setLength(0);

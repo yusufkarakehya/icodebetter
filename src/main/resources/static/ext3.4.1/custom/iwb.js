@@ -8022,3 +8022,9 @@ iwb.fileUploadSurveyJs=(tableId, tablePk, survey, options)=>{
     };
     xhr.send(formData);
 }
+
+function getPkValue(o){
+	if(!o)return "";
+	for(var k in o)if(!iwb.hasPartInside('customization_id,project_uuid',k))return o[k];
+	return ""
+}

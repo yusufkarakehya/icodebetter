@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 //import iwb.adapter.soap.SoapAdapter;
@@ -49,6 +50,7 @@ import iwb.util.JWTUtil;
 import iwb.util.LogUtil;
 import iwb.util.UserUtil;
 
+@CrossOrigin
 @Controller
 @RequestMapping("/rest")
 public class RestController implements InitializingBean {

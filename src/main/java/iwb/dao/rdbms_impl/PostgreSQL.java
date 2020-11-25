@@ -3035,29 +3035,6 @@ public class PostgreSQL extends BaseDAO {
 		// Kontrol: Veri görünteleyemezsiniz", null);
 	}
 
-	public List<Map> getMainTableData(Map<String, Object> scd, int tableId, String tablePk) { // TODO:
-																								// yetki
-																								// eksik
-
-		int count = 0;
-		String customizationId = scd.get("customizationId").toString();
-		W5Table table = FrameworkCache.getTable(customizationId, tableId);
-
-		StringBuilder sql = new StringBuilder();
-		List lp = new ArrayList();
-		lp.add(tablePk);
-		sql.append("select t.* ,");
-
-		sql.replace(sql.length() - 1, sql.length(), " from " + table.getDsc() + "  t where");
-		for (W5TableParam x : table.get_tableParamList()) {
-			sql.append(" t." + x.getExpressionDsc() + "= ? and");
-			if (x.getExpressionDsc().equals("project_uuid"))
-				lp.add(scd.get("projectId"));
-		}
-		sql.replace(sql.length() - 3, sql.length(), "");
-
-		return executeSQLQuery2Map(sql.toString(), lp);
-	}
 
 	public List<W5TableRecordHelper> findRecordParentRecords(Map<String, Object> scd, int tableId, int tablePk,
 			int maxLevel, boolean includeSummarySqlFlag) { // TODO:includeSummarySqlFlag
