@@ -173,7 +173,24 @@ try {
             if (forceAll) {
               this.store.clearFilter();
             } else {
-              this.store.filter(this.displayField, q, true, false); // supply the anyMatch option
+            	 //this.store.filter(this.displayField, q, true,false); // supply the anyMatch option(3.parameter)
+        	    var df=this.displayField;
+   				var filterFromLeft=this.filterFromLeft;
+   				this.store.filterBy(function(rec){				
+   					q=q.toLowerCase();
+   					q=q.split('i̇').join('i'); //büyük i farklı bir koda cevriliyor, bu yuzden eklendi 
+   					
+   					r=rec.data[df];
+   					r=r.split('İ').join('i');
+   					r=r.split('İ').join('i');
+   					r=r.split('I').join('ı');
+   					r=r.toLowerCase();  
+   					
+   					if(filterFromLeft)
+   						return r.indexOf(q)==0;
+   					else
+   						return r.indexOf(q)>-1;
+                   });	
             }
             this.onLoad();
           } else {
