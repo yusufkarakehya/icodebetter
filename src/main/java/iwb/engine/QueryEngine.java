@@ -241,6 +241,10 @@ public class QueryEngine {
 						lookupQueryResult.setRequestParams(new HashMap());
 						lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
 						switch (lookupQueryResult.getQuery().getQuerySourceType()) {
+						case 0: // LogicQuery							
+							String logicFrom = lookupQueryResult.getQuery().getSqlFrom();
+							scriptEngine.executeQueryAsScript(lookupQueryResult, logicFrom);
+							break;
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(scd,
 									lookupQueryResult.getQuery().getSourceObjectId());

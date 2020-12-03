@@ -1149,6 +1149,21 @@ public class PostgreSQL extends BaseDAO {
 					lookupQueryResult.setOrderBy(lookupQueryResult.getQuery().getSqlOrderby());
 					if (lookupQueryResult.getQuery().getQuerySourceType() != 15)
 						switch (lookupQueryResult.getQuery().getQuerySourceType()) {
+						case 0: // LogicQuery
+							Map<String, String> m22 = new HashMap();
+							if (requestParams.get("filter[value]") != null) {
+								requestParams.put("xdsc", requestParams.get("filter[value]"));
+								requestParams.remove("filter[value]");
+							}
+							for (W5QueryParam qp : lookupQueryResult.getQuery().get_queryParams())
+								if (!GenericUtil.isEmpty(requestParams.get(qp.getDsc()))) {
+									m22.put(qp.getExpressionDsc(), requestParams.get(qp.getDsc()));
+								}
+							
+							String logicFrom = lookupQueryResult.getQuery().getSqlFrom();
+							scriptEngine.executeQueryAsScript(lookupQueryResult, logicFrom);
+							rc.setLookupQueryResult(lookupQueryResult);
+							continue;
 						case 1376: // WS Method
 							W5WsMethod wsm = FrameworkCache.getWsMethod(projectId,
 									lookupQueryResult.getQuery().getSourceObjectId());
