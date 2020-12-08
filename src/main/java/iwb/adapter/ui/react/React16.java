@@ -2113,6 +2113,9 @@ public class React16 implements ViewAdapter {
 		case	72://signature
 			buf.append("$:Signature, width:").append(fc.getControlWidth());
 			break;
+		case	74://pdf viewer
+			buf.append("$:PdfViewer, width:").append(fc.getControlWidth());
+			break;
 		case	71://file attachment
 			buf.append("$:FileInput, parentCt: this, onFileChange: this.onFileChange(), cfg:cfgForm");
 			Map evm = cellResult.getExtraValuesMap();
