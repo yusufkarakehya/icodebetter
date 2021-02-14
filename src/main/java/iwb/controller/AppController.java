@@ -1580,6 +1580,7 @@ public class AppController implements InitializingBean {
 		
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
+        response.setHeader("Cache-Control", "max-age=31536000");
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd(request, "scd-dev", true);

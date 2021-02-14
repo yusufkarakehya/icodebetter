@@ -3598,7 +3598,7 @@ public class VcsService {
 			dao.executeUpdateSQLQuery("insert into iwb.w5_project(project_uuid, customization_id, dsc, project_status_tip, rdbms_schema, vcs_url, vcs_user_name, vcs_password, oproject_uuid, "
 					+ " ui_web_frontend_tip, ui_main_template_id, session_query_id, authentication_func_id, ui_login_template_id, insert_user_id)"
 					+ " values (?,1,?, ?, ?,?,?,?, ?,"
-					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://34.68.231.169/app/","app.store", "1", projectId
+					+ "?, ?, ?, ?, ?, ?)", newProjectId, po.getDsc(), 0, schema, "http://vcs.code2.io/app/","app.store", "1", projectId
 					, po.getUiWebFrontendTip(), po.getUiMainTemplateId(), po.getSessionQueryId(), po.getAuthenticationFuncId(), po.getUiLoginTemplateId(), scd.get("userId"));
 			dao.executeUpdateSQLQuery("create schema IF NOT EXISTS "+schema + " AUTHORIZATION iwb");
 		} else { 
@@ -4289,7 +4289,7 @@ public class VcsService {
 		scd.put("projectId", icbProjectId);
 		scd.put("userId", 1);scd.put("roleId", 0);scd.put("userRoleId", 1);
 		String vcsServer = FrameworkSetting.argMap.get("vcs_server");
-		if(GenericUtil.isEmpty(vcsServer))vcsServer="http://34.68.231.169/app/";
+		if(GenericUtil.isEmpty(vcsServer))vcsServer="http://vcs.code2.io/app/";
 		dao.executeUpdateSQLQuery("update iwb.w5_project set vcs_url=?", vcsServer);
 		dao.executeUpdateSQLQuery("update iwb.w5_app_setting set val=? where dsc in ('vcs_url_new_project')", vcsServer);
 

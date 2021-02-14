@@ -1648,7 +1648,7 @@ public class PostgreSQLWriter extends BaseDAO {
 				int customizationId = GenericUtil.uInt(scd.get("ocustomizationId"));
 				String schema = "c"+GenericUtil.lPad(customizationId+"", 5, '0')+"_"+newProjectId.replace('-', '_');
 				//validate from vcs server
-				executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://34.68.231.169/app/"), scd.get("userName"), "1", customizationId, newProjectId);
+				executeUpdateSQLQuery("update iwb.w5_project set rdbms_schema=?, vcs_url=?, vcs_user_name=?, vcs_password=?, customization_id=? where project_uuid=?", schema, FrameworkCache.getAppSettingStringValue(0, "vcs_url_new_project","http://vcs.code2.io/app/"), scd.get("userName"), "1", customizationId, newProjectId);
 				executeUpdateSQLQuery("create schema IF NOT EXISTS "+schema + " AUTHORIZATION iwb");
 				if(fr.getAction()==5){ //clone
 					Map<String, Object> newScd = new HashMap();

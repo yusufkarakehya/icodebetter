@@ -1230,6 +1230,7 @@ public class PreviewController implements InitializingBean {
 			throws ServletException, IOException {
 		int fileAttachmentId = GenericUtil.uInt(request, "_fai");
 		logger.info("hndShowFile(" + fileAttachmentId + ")");
+        response.setHeader("Cache-Control", "max-age=31536000");
 		Map<String, Object> scd = null;
 		if (fileAttachmentId == 0) {
 			scd = UserUtil.getScd4Preview(request, "scd-dev", FrameworkCache.getAppSettingIntValue(0, "file_view_sessionless")!=0);
