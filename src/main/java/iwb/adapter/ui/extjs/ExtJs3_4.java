@@ -5285,7 +5285,8 @@ public class ExtJs3_4 implements ViewAdapter {
 		for (W5ListColumn c : l.get_listColumnList())
 			if (c.get_queryField() != null) {
 				W5QueryField f = c.get_queryField();
-				W5TableField tf = f.getMainTableFieldId() > 0 ? listResult
+				W5TableField tf = f.getMainTableFieldId() > 0 && listResult
+						.getListView().get_mainTable()!=null ? listResult
 						.getListView().get_mainTable().get_tableFieldMap()
 						.get(f.getMainTableFieldId()) : null;
 				if (tf != null) {
