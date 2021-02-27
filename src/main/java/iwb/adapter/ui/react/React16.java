@@ -1120,7 +1120,7 @@ public class React16 implements ViewAdapter {
 							s.append("var _module").append(m.getFormModuleId())
 							.append("={$:()=>_('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'" + 
 							LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),id:"+
-							m.getFormModuleId()+",dsc:'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"',hidden: false}");
+							m.getFormModuleId()+",dsc:'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"',hidden: false};\n");
 						}
 						
 					}
