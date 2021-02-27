@@ -1110,6 +1110,21 @@ public class React16 implements ViewAdapter {
 							fc.getFormCell().getLocaleMsgKey()));
 				}
 			}
+		
+		if (formResult.getForm().get_moduleList() != null)
+			for (W5FormModule m : formResult.getForm().get_moduleList())
+				if (m.getFormModuleId() != 0) {
+					if ((m.getModuleViewType() == 0 || formResult.getAction() == m
+							.getModuleViewType()) ) {
+						if(m.getModuleType() != 4 && m.getModuleType() != 5) {
+							s.append("var _module").append(m.getFormModuleId())
+							.append("={$:()=>_('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'" + 
+							LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),id:"+
+							m.getFormModuleId()+",dsc:'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"',hidden: false}");
+						}
+						
+					}
+				}
 
 		s.append("\nvar __action__=").append(formResult.getAction()).append("\n");
 
@@ -1600,7 +1615,7 @@ public class React16 implements ViewAdapter {
 								buf.append(renderFormModuleListTop(
 										customizationId, xlocale,
 										formResult.getUniqueId(),
-										map.get(m.getFormModuleId()), ",_('div',{className:'hr-text', style:{marginTop:'20px'}},_('h6',null,'"+LocaleMsgCache.get2(customizationId, xlocale, m.getLocaleMsgKey())+"')),", defaultWidth));
+										map.get(m.getFormModuleId()), "\n, _(_module"+m.getFormModuleId()+".$,_module"+m.getFormModuleId()+"), !_module"+m.getFormModuleId()+".hidden && ", defaultWidth ));
 							}
 						}
 					}
