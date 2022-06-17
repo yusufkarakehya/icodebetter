@@ -4377,7 +4377,7 @@ public class PostgreSQL extends BaseDAO {
 							m.put("browseInfo", m2);
 							s = startOffset > 1
 									? conn.prepareStatement("select q.* from  (" + sql + ") q limit " + (limit + 1)
-											+ ") offset " + startOffset)
+											+ " offset " + startOffset)
 									: conn.prepareStatement("select * from (" + sql + ") q limit " + (limit + 1));
 						} else
 							s = conn.prepareStatement(sql);
